@@ -3,7 +3,7 @@
 import { addStory } from "@/lib/actions";
 import { useUser } from "@clerk/nextjs";
 import { Story, User } from "@prisma/client";
-import { CldUploadWidget } from "next-cloudinary";
+// import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useOptimistic, useState } from "react";
 
@@ -51,7 +51,7 @@ const StoryList = ({
     try {
       const createdStory = await addStory(img.secure_url);
       setStoryList((prev) => [createdStory!, ...prev]);
-      setImg(null)
+      setImg(null);
     } catch (err) {}
   };
 
@@ -61,7 +61,7 @@ const StoryList = ({
   );
   return (
     <>
-      <CldUploadWidget
+      {/* <CldUploadWidget
         uploadPreset="social"
         onSuccess={(result, { widget }) => {
           setImg(result.info);
@@ -92,7 +92,7 @@ const StoryList = ({
             </div>
           );
         }}
-      </CldUploadWidget>
+      </CldUploadWidget> */}
       {/* STORY */}
       {optimisticStories.map((story) => (
         <div
