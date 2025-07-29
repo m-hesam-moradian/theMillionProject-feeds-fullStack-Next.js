@@ -18,7 +18,7 @@ const AddPost = () => {
   console.log(userId);
 
   const testAction = async (formData: FormData) => {
-    "use server";
+    // "use server";
     //   const desc = formData.get("desc") as string;
     //   try {
     //     prisma.post.create({
