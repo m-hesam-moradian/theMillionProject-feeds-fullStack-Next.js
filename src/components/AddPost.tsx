@@ -4,6 +4,8 @@ import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useState } from "react";
 import AddPostButton from "./AddPostButton";
+import prisma from "@/lib/client";
+import { auth, getAuth } from "@clerk/nextjs/server";
 // import { addPost } from "@/lib/actions";
 // import prisma from "@/lib/client";
 
@@ -11,10 +13,28 @@ const AddPost = () => {
   const { user, isLoaded } = useUser();
   const [desc, setDesc] = useState("");
   const [img, setImg] = useState<any>();
+  // const { userId } = auth();
+  // console.log(userId);
+  // console.log("ser id " + userId);
 
   // Remove this line, use user?.id instead
   // const { userId } = auth();
+  const testAction = async (formData: FormData) => {
+    // "use server";
+    const desc = formData.get("desc") as string;
+    try {
+      const res = await prisma.post.create({
+        data: {
+          userId: "user_30cwGhlyjhdYrCmdCwErheL3vR9",
+          desc: desc,
+        },
+      });
 
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   if (!isLoaded) {
     return "Loading...";
   }
@@ -23,10 +43,10 @@ const AddPost = () => {
     return <div>Please sign in to add a post.</div>;
   }
 
-  const testAction = async (formData: FormData) => {
-    // Your server action or API call here
-    // Use user.id on server to identify user
-  };
+  // const testAction = async (formData: FormData) => {
+  //   // Your server action or API call here
+  //   // Use user.id on server to identify user
+  // };
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg flex gap-4 justify-between text-sm">
