@@ -7,6 +7,7 @@ import { useActionState, useState } from "react";
 // import { CldUploadWidget } from "next-";
 import { useRouter } from "next/navigation";
 import UpdateButton from "./UpdateButton";
+import { CldUploadWidget } from "next-cloudinary";
 
 const UpdateUser = ({ user }: { user: User }) => {
   const [open, setOpen] = useState(false);
@@ -46,7 +47,7 @@ const UpdateUser = ({ user }: { user: User }) => {
               Use the navbar profile to change the avatar or username.
             </div>
             {/* COVER PIC UPLOAD */}
-            {/* <CldUploadWidget
+            <CldUploadWidget
               uploadPreset="social"
               onSuccess={(result) => setCover(result.info)}
             >
@@ -72,7 +73,7 @@ const UpdateUser = ({ user }: { user: User }) => {
                   </div>
                 );
               }}
-            </CldUploadWidget> */}
+            </CldUploadWidget>
 
             {/* WRAPPER */}
             <div className="flex flex-wrap justify-between gap-2 xl:gap-4">
