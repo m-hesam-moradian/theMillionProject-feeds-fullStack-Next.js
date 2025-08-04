@@ -77,7 +77,7 @@ const StoryList = ({
                 alt=""
                 width={80}
                 height={80}
-                className="w-20 h-20 rounded-full ring-2 object-cover"
+                className="w-20 h-20 rounded-full ring-2 object-cover ring-main_third"
                 onClick={() => open()}
               />
               {img ? (
