@@ -12,17 +12,17 @@ const MobileMenu = () => {
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <div
-          className={`w-6 h-1 bg-blue-500 rounded-sm ${
+          className={`w-6 h-1 bg-main_third rounded-sm ${
             isOpen ? "rotate-45" : ""
           } origin-left ease-in-out duration-500`}
         />
         <div
-          className={`w-6 h-1 bg-blue-500 rounded-sm ${
+          className={`w-6 h-1 bg-main_third rounded-sm ${
             isOpen ? "opacity-0" : ""
           } ease-in-out duration-500`}
         />
         <div
-          className={`w-6 h-1 bg-blue-500 rounded-sm ${
+          className={`w-6 h-1 bg-main_third rounded-sm ${
             isOpen ? "-rotate-45" : ""
           } origin-left ease-in-out duration-500`}
         />

@@ -11,11 +11,16 @@ import {
 
 const Navbar = () => {
   return (
-    <div className="h-24 flex items-center justify-between">
+    <div className="h-24 flex items-center justify-around">
       {/* LEFT */}
-      <div className="md:hidden lg:block w-[20%]">
-        <Link href="/" className="font-bold text-xl text-gray-600">
-          themillionproject.<span className="text-green-600">feeds</span>
+      <div className="md:hidden lg:block  ">
+        <Link href="/" className="font-bold text-xl text-gray-600 ">
+          <img
+            className="w-auto object-cover h-14"
+            loading="lazy"
+            src="https://static.wixstatic.com/media/1ae563_51b9b29a44ed463b9cdfc419ecc40ac9~mv2.png/v1/crop/x_0,y_475,w_6284,h_2948/fill/w_370,h_173,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/New%20Logo.png"
+            alt=""
+          />
         </Link>
       </div>
       {/* CENTER */}
@@ -63,7 +68,7 @@ const Navbar = () => {
         </div>
       </div>
       {/* RIGHT */}
-      <div className="w-[30%] flex items-center gap-4 xl:gap-8 justify-end">
+      <div className=" flex items-center gap-4 xl:gap-8 justify-end">
         <ClerkLoading>
           <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-500 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white" />
         </ClerkLoading>

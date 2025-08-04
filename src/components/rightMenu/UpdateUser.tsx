@@ -28,7 +28,7 @@ const UpdateUser = ({ user }: { user: User }) => {
   return (
     <div className="">
       <span
-        className="text-blue-500 text-xs cursor-pointer"
+        className="text-main_third text-xs cursor-pointer"
         onClick={() => setOpen(true)}
       >
         Update

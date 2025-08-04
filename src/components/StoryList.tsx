@@ -3,6 +3,7 @@
 import { addStory } from "@/lib/actions";
 import { useUser } from "@clerk/nextjs";
 import { Story, User } from "@prisma/client";
+import { CldUploadWidget } from "next-cloudinary";
 // import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useOptimistic, useState } from "react";
@@ -61,7 +62,7 @@ const StoryList = ({
   );
   return (
     <>
-      {/* <CldUploadWidget
+      <CldUploadWidget
         uploadPreset="social"
         onSuccess={(result, { widget }) => {
           setImg(result.info);
@@ -81,7 +82,7 @@ const StoryList = ({
               />
               {img ? (
                 <form action={add}>
-                  <button className="text-xs bg-blue-500 p-1 rounded-md text-white">
+                  <button className="text-xs bg-main_third p-1 rounded-md text-white">
                     Send
                   </button>
                 </form>
@@ -92,8 +93,8 @@ const StoryList = ({
             </div>
           );
         }}
-      </CldUploadWidget> */}
-      {/* STORY */}
+      </CldUploadWidget>
+      {/* {/* STORY */}
       {optimisticStories.map((story) => (
         <div
           className="flex flex-col items-center gap-2 cursor-pointer"
