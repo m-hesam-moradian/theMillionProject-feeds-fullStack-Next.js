@@ -77,7 +77,7 @@ const StoryList = ({
                 alt=""
                 width={80}
                 height={80}
-                className="w-20 h-20 rounded-full ring-2 object-cover ring-main_third"
+                className="w-20 h-20 rounded-full ring-2 object-cover ring-main_third filter brightness-50"
                 onClick={() => open()}
               />
               {img ? (
@@ -105,7 +105,7 @@ const StoryList = ({
             alt=""
             width={80}
             height={80}
-            className="w-20 h-20 rounded-full ring-2"
+            className="w-20 h-20 rounded-full ring-2 object-cover ring-main_third"
           />
           <span className="font-medium">
             {story.user.name || story.user.username}

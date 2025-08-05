@@ -62,7 +62,7 @@ const CommentList = ({
             alt=""
             width={32}
             height={32}
-            className="w-8 h-8 rounded-full"
+            className="w-8 h-8 rounded-full object-cover"
           />
           <form
             action={add}
@@ -94,7 +94,7 @@ const CommentList = ({
               alt=""
               width={40}
               height={40}
-              className="w-10 h-10 rounded-full"
+              className="w-10 h-10 rounded-full object-cover"
             />
             {/* DESC */}
             <div className="flex flex-col gap-2 flex-1">
