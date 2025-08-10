@@ -3,6 +3,8 @@
 import Link from "next/link";
 import MobileMenu from "./MobileMenu";
 import Image from "next/image";
+import SearchBar from "./SearchBar";
+
 import {
   ClerkLoaded,
   ClerkLoading,
@@ -61,38 +63,7 @@ const Navbar = () => {
           </Link>
         </div>
         {/* get user from prisma data base and show user profile */}
-        <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md w-[60%] relative">
-          <input
-            type="text"
-            placeholder="search..."
-            className="bg-transparent outline-none"
-            onFocus={(e) => (e.target.placeholder = "")}
-            onBlur={(e) => (e.target.placeholder = "search...")}
-            onKeyDown={(e) => {
-              // get the all data from the input
-              const value = e.currentTarget.value;
-              if (e.key === "Enter") {
-                // Handle search action here
-                console.log("Search for:", value);
-              }
-            }}
-          />
-          <Image src="/search.png" alt="" width={14} height={14} />
-          {/* a float div to show searched users by profile picture and name */}
-          <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto">
-            {/* Map through searched users and display their profile picture and name */}
-            {/* <div className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer">
-              <Image
-                src="/noAvatar.png"
-                alt="User"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <span className="font-medium">John Doe</span>
-            </div> */}
-          </div>
-        </div>
+        <SearchBar />
       </div>
       {/* RIGHT */}
       <div className=" flex items-center gap-4 xl:gap-8 justify-end">
