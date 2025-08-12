@@ -3,7 +3,6 @@
 import Link from "next/link";
 import MobileMenu from "./MobileMenu";
 import Image from "next/image";
-import SearchBar from "./SearchBar";
 
 import {
   ClerkLoaded,
@@ -13,7 +12,32 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 
+import { useEffect, useState } from "react";
+
 const Navbar = () => {
+  const [value, setValue] = useState<string>("");
+  const [results, setResults] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!value || value.trim() === "") {
+        setResults([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/search?q=${value}`);
+        const data = await res.json();
+        setResults(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    const debounce = setTimeout(fetchUsers, 300); // debounce input
+
+    return () => clearTimeout(debounce);
+  }, [value]);
+
   return (
     <div className="h-24 flex items-center justify-around relative shadow-sm px-4">
       {/* LEFT */}
@@ -63,7 +87,37 @@ const Navbar = () => {
           </Link>
         </div>
         {/* get user from prisma data base and show user profile */}
-        <SearchBar />
+        <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md w-[60%] relative">
+          <input
+            type="text"
+            placeholder="search..."
+            className="bg-transparent outline-none"
+            onFocus={(e) => (e.target.placeholder = "")}
+            onBlur={(e) => (e.target.placeholder = "search...")}
+            onChange={(e) => setValue(e.currentTarget.value)}
+          />
+          <Image src="/search.png" alt="" width={14} height={14} />
+          {/* a float div to show searched users by profile picture and name */}
+          <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto">
+            {results.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
+              >
+                <Image
+                  src={user.avatar || "/noAvatar.png"}
+                  alt={user.username}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <span className="font-medium">
+                  {user.name || user.username}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       {/* RIGHT */}
       <div className=" flex items-center gap-4 xl:gap-8 justify-end">
