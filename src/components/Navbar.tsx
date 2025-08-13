@@ -14,9 +14,9 @@ import {
 
 import { useEffect, useState } from "react";
 
-// z
 const Navbar = () => {
   const [value, setValue] = useState<string>("");
+  const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(true);
   const [results, setResults] = useState<any[]>([]);
 
   useEffect(() => {
@@ -88,35 +88,46 @@ const Navbar = () => {
           </Link>
         </div>
         {/* get user from prisma data base and show user profile */}
-        <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md w-[60%] relative">
+        <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md  relative">
           <input
             type="text"
             placeholder="search..."
             className="bg-transparent outline-none"
-            onFocus={(e) => (e.target.placeholder = "")}
-            onBlur={(e) => (e.target.placeholder = "search...")}
+            onFocus={(e) => {
+              e.target.placeholder = "";
+
+              setIsSearchbarOpen(true);
+            }}
+            onBlur={(e) => {
+              e.target.placeholder = "search...";
+              setTimeout(() => {
+                setIsSearchbarOpen(false);
+              }, 500); // 1000 milliseconds = 1 second
+            }}
             onChange={(e) => setValue(e.currentTarget.value)}
           />
           <Image src="/search.png" alt="" width={14} height={14} />
           {/* a float div to show searched users by profile picture and name */}
           <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto">
-            {results.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
-              >
-                <Image
-                  src={user.avatar || "/noAvatar.png"}
-                  alt={user.username}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <span className="font-medium">
-                  {user.name || user.username}
-                </span>
-              </div>
-            ))}
+            {isSearchbarOpen &&
+              results.map((user) => (
+                <Link
+                  key={user.id}
+                  href={`/profile/${user.username}`}
+                  className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  <Image
+                    src={user.avatar || "/noAvatar.png"}
+                    alt={user.username}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <span className="font-medium">
+                    {user.name || user.username}
+                  </span>
+                </Link>
+              ))}
           </div>
         </div>
       </div>
