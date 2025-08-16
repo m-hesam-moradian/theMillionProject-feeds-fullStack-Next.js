@@ -1,5 +1,4 @@
-import AddPost from "@/components/AddPost";
-import Stories from "@/components/Stories";
+import AddPostWrapper from "@/components/AddPostWrapper";
 import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
@@ -12,8 +11,7 @@ const Homepage = () => {
       </div>
       <div className="w-full lg:w-[70%] xl:w-[50%]">
         <div className="flex flex-col gap-6">
-          {/* <Stories /> */}
-          <AddPost />
+          <AddPostWrapper />
           <Feed />
         </div>
       </div>

@@ -260,34 +260,28 @@ export const addComment = async (postId: number, desc: string) => {
 };
 
 export const addPost = async (formData: FormData, img: string) => {
-  const desc = formData.get("desc") as string;
-
-  const Desc = z.string().min(1).max(255);
-
-  const validatedDesc = Desc.safeParse(desc);
-
-  if (!validatedDesc.success) {
-    //TODO
-    console.log("description is not valid");
-    return;
-  }
   const { userId } = auth();
+  if (!userId) throw new Error("Unauthorized");
 
-  if (!userId) throw new Error("User is not authenticated!");
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
 
-  try {
-    await prisma.post.create({
-      data: {
-        desc: validatedDesc.data,
-        userId,
-        img,
-      },
-    });
-
-    revalidatePath("/");
-  } catch (err) {
-    console.log(err);
+  if (!user || user.role !== "ADMIN") {
+    throw new Error("Forbidden: Only admins can post");
   }
+
+  const desc = formData.get("desc")?.toString();
+
+  await prisma.post.create({
+    data: {
+      desc,
+      img,
+      userId: user.id,
+    },
+  });
+
+  revalidatePath("/");
 };
 
 export const addStory = async (img: string) => {
@@ -338,7 +332,7 @@ export const deletePost = async (postId: number) => {
         userId,
       },
     });
-    revalidatePath("/")
+    revalidatePath("/");
   } catch (err) {
     console.log(err);
   }
