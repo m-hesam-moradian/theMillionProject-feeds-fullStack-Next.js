@@ -12,7 +12,14 @@ const AddPost = () => {
   const { user, isLoaded } = useUser();
   const [desc, setDesc] = useState("");
   const [img, setImg] = useState<any>();
+  const [pollCount, setPollCount] = useState<Number>(0);
+  const [inputValues, setInputValues] = useState([]);
+  const [activePoll, setActivePoll] = useState(false);
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log(inputValues);
+  };
   if (!isLoaded) {
     return "Loading...";
   }
@@ -31,15 +38,43 @@ const AddPost = () => {
       <div className="flex-1">
         {/* TEXT INPUT */}
         <form
+          onSubmit={handleSubmit}
           action={(formData) => addPost(formData, img?.secure_url || "")}
           className="flex gap-4"
         >
-          <textarea
-            placeholder="What's on your mind?"
-            className="flex-1 bg-slate-100 rounded-lg p-2"
-            name="desc"
-            onChange={(e) => setDesc(e.target.value)}
-          ></textarea>
+          <div className="grid ">
+            <textarea
+              className="flex-1 bg-slate-100 rounded-lg p-2"
+              placeholder="What's on your mind?"
+              name="desc"
+              onChange={(e) => setDesc(e.target.value)}
+            ></textarea>
+            <div className="grid grid-cols-2  mt-4">
+              {activePoll && (
+                <button
+                  className="flex-1 bg-slate-100 rounded-lg p-2 max-w-fit m-1 text-gray-400"
+                  onClick={() => setPollCount((prev) => prev + 1)}
+                >
+                  Add Poll +
+                </button>
+              )}
+              {Array.from({ length: pollCount }, (_, index) => (
+                <input
+                  key={index}
+                  id={`poll-input-${index}`}
+                  type="text"
+                  value={inputValues[index] || ""}
+                  onChange={(e) => {
+                    const newValues = [...inputValues];
+                    newValues[index] = e.target.value;
+                    setInputValues(newValues);
+                  }}
+                  className="flex-1 bg-slate-100 rounded-lg p-2 max-w-fit m-1"
+                  placeholder={`Poll ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
           <div className="">
             <Image
               src="/emoji.png"
@@ -49,8 +84,25 @@ const AddPost = () => {
               className="w-5 h-5 cursor-pointer self-end"
             />
             <AddPostButton />
+            <button
+              onClick={() => {
+                // Collect all input values into an array
+                const values = Array.from({ length: pollCount }, (_, index) => {
+                  const inputElement = document.getElementById(
+                    `poll-input-${index}`
+                  ) as HTMLInputElement;
+                  return inputElement ? inputElement.value : "";
+                });
+
+                // Log the array of input values
+                console.log(values);
+              }}
+            >
+              test
+            </button>
           </div>
         </form>
+
         {/* POST OPTIONS */}
         <div className="flex items-center gap-4 mt-4 text-gray-400 flex-wrap">
           <CldUploadWidget
@@ -76,7 +128,10 @@ const AddPost = () => {
             <Image src="/addVideo.png" alt="" width={20} height={20} />
             Video
           </div>
-          <div className="flex items-center gap-2 cursor-pointer">
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => setActivePoll((previous) => !previous)}
+          >
             <Image src="/poll.png" alt="" width={20} height={20} />
             Poll
           </div>
