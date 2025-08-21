@@ -56,7 +56,7 @@ const CommentList = ({
   return (
     <>
       {user && (
-        <div className="flex items-center gap-4">
+        <div className="  flex items-center gap-4">
           <Image
             src={user.imageUrl || "noAvatar.png"}
             alt=""
@@ -84,52 +84,58 @@ const CommentList = ({
           </form>
         </div>
       )}
-      <div className="">
-        {/* COMMENT */}
-        {optimisticComments.map((comment) => (
-          <div className="flex gap-4 justify-between mt-6" key={comment.id}>
-            {/* AVATAR */}
-            <Image
-              src={comment.user.avatar || "noAvatar.png"}
-              alt=""
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            {/* DESC */}
-            <div className="flex flex-col gap-2 flex-1">
-              <span className="font-medium">
-                {comment.user.name && comment.user.surname
-                  ? comment.user.name + " " + comment.user.surname
-                  : comment.user.username}
-              </span>
-              <p>{comment.desc}</p>
-              <div className="flex items-center gap-8 text-xs text-gray-500 mt-2">
-                <div className="flex items-center gap-4">
-                  <Image
-                    src="/like.png"
-                    alt=""
-                    width={12}
-                    height={12}
-                    className="cursor-pointer w-4 h-4"
-                  />
-                  <span className="text-gray-300">|</span>
-                  <span className="text-gray-500">0 Likes</span>
+      {optimisticComments.length > 0 && (
+        <div className="m-2 p-2 shadow-inner rounded-lg  bg-slate-100">
+          {/* COMMENT */}
+
+          {optimisticComments.map((comment, index) => (
+            <div
+              className="flex gap-4 justify-between mt-4 p-2 "
+              key={comment.id}
+            >
+              {/* AVATAR */}
+              <Image
+                src={comment.user.avatar || "noAvatar.png"}
+                alt=""
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              {/* DESC */}
+              <div className="flex flex-col gap-2 flex-1">
+                <span className="font-medium">
+                  {comment.user.name && comment.user.surname
+                    ? comment.user.name + " " + comment.user.surname
+                    : comment.user.username}
+                </span>
+                <p>{comment.desc}</p>
+                <div className="flex items-center gap-8 text-xs text-gray-500 mt-2">
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src="/like.png"
+                      alt=""
+                      width={12}
+                      height={12}
+                      className="cursor-pointer w-4 h-4"
+                    />
+                    <span className="text-gray-300">|</span>
+                    <span className="text-gray-500">0 Likes</span>
+                  </div>
+                  <div className="">Reply</div>
                 </div>
-                <div className="">Reply</div>
               </div>
+              {/* ICON */}
+              <Image
+                src="/more.png"
+                alt=""
+                width={16}
+                height={16}
+                className="cursor-pointer w-4 h-4"
+              ></Image>
             </div>
-            {/* ICON */}
-            <Image
-              src="/more.png"
-              alt=""
-              width={16}
-              height={16}
-              className="cursor-pointer w-4 h-4"
-            ></Image>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </>
   );
 };

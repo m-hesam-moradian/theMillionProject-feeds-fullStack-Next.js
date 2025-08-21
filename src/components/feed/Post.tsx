@@ -5,17 +5,37 @@ import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
 import { auth } from "@clerk/nextjs/server";
+import { voteOnPoll } from "@/lib/actions";
+import PollBlock from "./PollBlock"; // adjust path if needed
 
-type FeedPostType = PostType & { user: User } & {
+type FeedPostType = PostType & {
+  user: User;
   likes: [{ userId: string }];
-} & {
   _count: { comments: number };
+  poll?: {
+    id: number;
+    options?: {
+      id: number;
+      text: string;
+      votes: { userId: string }[];
+    }[];
+  };
 };
 
 const Post = ({ post }: { post: FeedPostType }) => {
   const { userId } = auth();
-  return (
-    <div className="flex flex-col gap-4">
+
+  const pollOptions = Array.isArray(post.poll?.options)
+    ? post.poll.options
+    : [];
+
+  const totalVotes = pollOptions.reduce(
+    (sum, option) => sum + (option.votes?.length || 0),
+    0
+  );
+
+  const content = (
+    <>
       {/* USER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -28,12 +48,13 @@ const Post = ({ post }: { post: FeedPostType }) => {
           />
           <span className="font-medium">
             {post.user.name && post.user.surname
-              ? post.user.name + " " + post.user.surname
+              ? `${post.user.name} ${post.user.surname}`
               : post.user.username}
           </span>
         </div>
         {userId === post.user.id && <PostInfo postId={post.id} />}
       </div>
+
       {/* DESC */}
       <div className="flex flex-col gap-4">
         {post.img && (
@@ -41,13 +62,19 @@ const Post = ({ post }: { post: FeedPostType }) => {
             <Image
               src={post.img}
               fill
-              className="object-cover rounded-md"
+              className="object-contain rounded-md"
               alt=""
             />
           </div>
         )}
         <p>{post.desc}</p>
       </div>
+
+      {/* POLL OPTIONS */}
+      {pollOptions.length > 0 && (
+        <PollBlock pollId={post.poll!.id} options={pollOptions} />
+      )}
+
       {/* INTERACTION */}
       <Suspense fallback="Loading...">
         <PostInteraction
@@ -56,9 +83,17 @@ const Post = ({ post }: { post: FeedPostType }) => {
           commentNumber={post._count.comments}
         />
       </Suspense>
+
+      {/* COMMENTS */}
       <Suspense fallback="Loading...">
         <Comments postId={post.id} />
       </Suspense>
+    </>
+  );
+
+  return (
+    <div className="flex bg-white p-4 rounded-lg shadow-md flex-col gap-4">
+      {content}
     </div>
   );
 };

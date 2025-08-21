@@ -12,14 +12,14 @@ const AddPost = () => {
   const { user, isLoaded } = useUser();
   const [desc, setDesc] = useState("");
   const [img, setImg] = useState<any>();
-  const [pollCount, setPollCount] = useState<Number>(0);
-  const [inputValues, setInputValues] = useState([]);
+  const [pollCount, setPollCount] = useState<number>(0);
+  const [inputValues, setInputValues] = useState<string[]>([]);
   const [activePoll, setActivePoll] = useState(false);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(inputValues);
-  };
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   // console.log(inputValues);
+  // };
   if (!isLoaded) {
     return "Loading...";
   }
@@ -38,41 +38,60 @@ const AddPost = () => {
       <div className="flex-1">
         {/* TEXT INPUT */}
         <form
-          onSubmit={handleSubmit}
-          action={(formData) => addPost(formData, img?.secure_url || "")}
+          // onSubmit={handleSubmit}
+          action={async (formData) => {
+            const cleanedPolls = inputValues.filter((val) => val.trim() !== "");
+            await addPost(
+              formData,
+              img?.secure_url || "",
+              activePoll ? cleanedPolls : undefined
+            );
+            setInputValues([]);
+            setPollCount(0);
+          }}
           className="flex gap-4"
         >
-          <div className="grid ">
+          <div className="grid w-[100%]">
             <textarea
-              className="flex-1 bg-slate-100 rounded-lg p-2"
+              className="flex-1 bg-slate-100 rounded-lg p-2 resize-none overflow-hidden "
               placeholder="What's on your mind?"
               name="desc"
-              onChange={(e) => setDesc(e.target.value)}
+              rows={1}
+              value={desc}
+              onChange={(e) => {
+                setDesc(e.target.value);
+                e.target.style.height = "auto"; // reset height
+                e.target.style.height = `${e.target.scrollHeight}px`; // set to scroll height
+              }}
             ></textarea>
+
             <div className="grid grid-cols-2  mt-4">
+              {activePoll &&
+                Array.from({ length: pollCount }, (_, index) => (
+                  <input
+                    key={index}
+                    id={`poll-input-${index}`}
+                    className="poll-inputs"
+                    type="text"
+                    value={inputValues[index] || ""}
+                    onChange={(e) => {
+                      const newValues = [...inputValues];
+                      newValues[index] = e.target.value;
+                      setInputValues(newValues);
+                    }}
+                    className=" bg-slate-100 rounded-lg p-2 w-[96%] m-1"
+                    placeholder={`Poll ${index + 1}`}
+                  />
+                ))}
               {activePoll && (
                 <button
-                  className="flex-1 bg-slate-100 rounded-lg p-2 max-w-fit m-1 text-gray-400"
+                  type="button"
+                  className="flex-1 bg-slate-100 rounded-lg p-2  m-1 text-gray-400"
                   onClick={() => setPollCount((prev) => prev + 1)}
                 >
                   Add Poll +
                 </button>
               )}
-              {Array.from({ length: pollCount }, (_, index) => (
-                <input
-                  key={index}
-                  id={`poll-input-${index}`}
-                  type="text"
-                  value={inputValues[index] || ""}
-                  onChange={(e) => {
-                    const newValues = [...inputValues];
-                    newValues[index] = e.target.value;
-                    setInputValues(newValues);
-                  }}
-                  className="flex-1 bg-slate-100 rounded-lg p-2 max-w-fit m-1"
-                  placeholder={`Poll ${index + 1}`}
-                />
-              ))}
             </div>
           </div>
           <div className="">
@@ -84,7 +103,7 @@ const AddPost = () => {
               className="w-5 h-5 cursor-pointer self-end"
             />
             <AddPostButton />
-            <button
+            {/* <button
               onClick={() => {
                 // Collect all input values into an array
                 const values = Array.from({ length: pollCount }, (_, index) => {
@@ -99,7 +118,7 @@ const AddPost = () => {
               }}
             >
               test
-            </button>
+            </button> */}
           </div>
         </form>
 

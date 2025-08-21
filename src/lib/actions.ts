@@ -259,7 +259,11 @@ export const addComment = async (postId: number, desc: string) => {
   }
 };
 
-export const addPost = async (formData: FormData, img: string) => {
+export const addPost = async (
+  formData: FormData,
+  img: string,
+  polls?: string[]
+) => {
   const { userId } = auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -273,15 +277,61 @@ export const addPost = async (formData: FormData, img: string) => {
 
   const desc = formData.get("desc")?.toString();
 
-  await prisma.post.create({
+  const post = await prisma.post.create({
     data: {
       desc,
       img,
       userId: user.id,
+      poll: polls
+        ? {
+            create: {
+              options: {
+                create: polls.map((text) => ({ text })),
+              },
+            },
+          }
+        : undefined,
     },
   });
 
+  console.log("Created post:", post);
+
   revalidatePath("/");
+};
+
+export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  try {
+    // Check if user already voted in this poll
+    const existingVote = await prisma.pollVote.findFirst({
+      where: {
+        userId,
+        pollId,
+      },
+    });
+
+    if (existingVote) {
+      throw new Error("You have already voted in this poll.");
+    }
+
+    // Create vote
+    await prisma.pollVote.create({
+      data: {
+        userId,
+        pollId,
+        pollOptionId,
+      },
+    });
+
+    // Revalidate to refresh UI
+    revalidatePath("/");
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went wrong while voting.");
+  }
 };
 
 export const addStory = async (img: string) => {

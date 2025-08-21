@@ -35,7 +35,7 @@ const UserMediaCard = async ({ user }: { user: User }) => {
                   src={post.img!}
                   alt=""
                   fill
-                  className="object-cover rounded-md"
+                  className="object-contain rounded-md"
                 />
               </div>
             ))

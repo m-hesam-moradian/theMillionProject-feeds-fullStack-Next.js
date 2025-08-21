@@ -20,6 +20,12 @@ const Feed = async ({ username }: { username?: string }) => {
           comments: true,
         },
       },
+      comments: true,
+      poll: {
+        include: {
+          options: true, // 👈 This replaces pollOptions
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -40,7 +46,7 @@ const Feed = async ({ username }: { username?: string }) => {
     const ids = [userId, ...followingIds];
   }
   return (
-    <div className="p-4 bg-white shadow-md rounded-lg flex flex-col gap-12">
+    <div className=" flex flex-col gap-4">
       {posts.length
         ? posts.map((post) => <Post key={post.id} post={post} />)
         : "No posts found!"}

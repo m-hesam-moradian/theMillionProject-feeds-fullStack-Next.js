@@ -43,20 +43,59 @@ model User {
   blocks                 Block[]         @relation("BlocksSent")
   blockedBy              Block[]         @relation("BlocksReceived")
   stories                Story[]
+  isSubscribed Boolean @default(false)
+  pollVotes PollVote[]
+
+
 }
+
+model Poll {
+  id         Int           @id @default(autoincrement())
+  post       Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     Int           @unique // 👈 Add this
+  options    PollOption[]
+  votes      PollVote[]
+  expiresAt  DateTime?
+}
+
+
+model PollOption {
+  id        Int      @id @default(autoincrement())
+  text      String
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  pollId    Int
+  votes     PollVote[]
+}
+
+model PollVote {
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  pollOptionId Int
+  poll         Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade) // 👈 Add this
+  pollId       Int
+
+  @@unique([userId, pollId]) // 👈 Update this to enforce one vote per poll
+}
+
+
 
 
 model Post {
-  id        Int       @id @default(autoincrement())
-  desc      String
-  img       String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  comments  Comment[]
-  likes     Like[]
+  id          Int           @id @default(autoincrement())
+  desc        String
+  img         String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  comments    Comment[]
+  likes       Like[]
+  poll        Poll?
+
 }
+
 
 model Comment {
   id        Int      @id @default(autoincrement())
