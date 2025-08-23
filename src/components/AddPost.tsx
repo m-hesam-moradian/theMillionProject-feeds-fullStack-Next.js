@@ -80,7 +80,6 @@ const AddPost = () => {
                   <input
                     key={index}
                     id={`poll-input-${index}`}
-                    className="poll-inputs"
                     type="text"
                     value={inputValues[index] || ""}
                     onChange={(e) => {
@@ -88,7 +87,7 @@ const AddPost = () => {
                       newValues[index] = e.target.value;
                       setInputValues(newValues);
                     }}
-                    className=" bg-slate-100 rounded-lg p-2 w-[96%] m-1"
+                    className=" bg-slate-100 rounded-lg p-2 w-[96%] m-1 poll-inputs"
                     placeholder={`Poll ${index + 1}`}
                   />
                 ))}

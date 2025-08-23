@@ -348,6 +348,10 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user?.isSubscribed) {
+    throw new Error("Only subscribed users can vote on polls!");
+  }
 
   const option = await prisma.pollOption.findUnique({
     where: { id: pollOptionId },
