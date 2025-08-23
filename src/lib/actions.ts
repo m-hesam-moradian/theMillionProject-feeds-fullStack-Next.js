@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { kMaxLength } from "buffer";
 
 export const switchFollow = async (userId: string) => {
   const { userId: currentUserId } = auth();
@@ -303,6 +304,13 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
+  const option = await prisma.pollOption.findUnique({
+    where: { id: pollOptionId },
+  });
+
+  if (!option || option.pollId !== pollId) {
+    throw new Error("Invalid poll option for this poll.");
+  }
 
   try {
     // Check if user already voted in this poll

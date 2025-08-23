@@ -28,7 +28,9 @@ export default function PollBlock({ pollId, options }: PollBlockProps) {
             key={option.id}
             action={async () => {
               "use server";
-              await voteOnPoll(pollId, option.id);
+              console.log(pollId, option.id);
+
+              // await voteOnPoll(pollId, option.id);
             }}
             className="flex flex-col gap-1"
           >

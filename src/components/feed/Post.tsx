@@ -29,13 +29,8 @@ const Post = ({ post }: { post: FeedPostType }) => {
     ? post.poll.options
     : [];
 
-  const totalVotes = pollOptions.reduce(
-    (sum, option) => sum + (option.votes?.length || 0),
-    0
-  );
-
-  const content = (
-    <>
+  return (
+    <div className="flex bg-white p-4 rounded-lg shadow-md flex-col gap-4">
       {/* USER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -88,12 +83,6 @@ const Post = ({ post }: { post: FeedPostType }) => {
       <Suspense fallback="Loading...">
         <Comments postId={post.id} />
       </Suspense>
-    </>
-  );
-
-  return (
-    <div className="flex bg-white p-4 rounded-lg shadow-md flex-col gap-4">
-      {content}
     </div>
   );
 };
