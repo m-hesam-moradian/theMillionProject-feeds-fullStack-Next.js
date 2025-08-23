@@ -252,18 +252,17 @@ export const addComment = async (postId: number, desc: string) => {
         user: true,
       },
     });
-
     return createdComment;
   } catch (err) {
     console.log(err);
     throw new Error("Something went wrong!");
   }
 };
-
 export const addPost = async (
   formData: FormData,
   img: string,
-  polls?: string[]
+  polls?: string[],
+  subscriptionOnly?: boolean
 ) => {
   const { userId } = auth();
   if (!userId) throw new Error("Unauthorized");
@@ -276,18 +275,25 @@ export const addPost = async (
     throw new Error("Forbidden: Only admins can post");
   }
 
-  const desc = formData.get("desc")?.toString();
+  const desc = formData.get("desc")?.toString() || "";
+
+  // ❌ Prevent creating empty posts
+  const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
+  if (!desc.trim() && !img && cleanedPolls.length === 0) {
+    throw new Error("Cannot create an empty post!");
+  }
 
   const post = await prisma.post.create({
     data: {
       desc,
       img,
       userId: user.id,
-      poll: polls
+      subscriptionOnly: subscriptionOnly || false,
+      poll: cleanedPolls.length
         ? {
             create: {
               options: {
-                create: polls.map((text) => ({ text })),
+                create: cleanedPolls.map((text) => ({ text })),
               },
             },
           }
@@ -296,14 +302,53 @@ export const addPost = async (
   });
 
   console.log("Created post:", post);
-
   revalidatePath("/");
+};
+
+export const getPosts = async () => {
+  const { userId } = auth(); // may be null if guest
+
+  // fetch all posts with related data
+  const posts = await prisma.post.findMany({
+    include: {
+      user: true,
+      likes: { select: { userId: true } },
+      _count: { select: { comments: true } },
+      poll: {
+        include: {
+          options: {
+            include: {
+              votes: { select: { userId: true } }, // for poll votes
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // get viewer info if logged in
+  const viewer = userId
+    ? await prisma.user.findUnique({ where: { id: userId } })
+    : null;
+
+  // filter subscription-only posts
+  const filteredPosts = posts.filter((post) => {
+    if (!post.subscriptionOnly) return true; // public post
+    if (!viewer?.isSubscribed) return false; // non-subscribers cannot see
+    return true; // subscriber sees post
+  });
+
+  return filteredPosts;
 };
 
 export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
+
   const option = await prisma.pollOption.findUnique({
     where: { id: pollOptionId },
   });
@@ -313,31 +358,57 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
   }
 
   try {
-    // Check if user already voted in this poll
-    const existingVote = await prisma.pollVote.findFirst({
+    // Check if user already voted
+    const existingVote = await prisma.pollVote.findUnique({
       where: {
-        userId,
-        pollId,
+        userId_pollId: {
+          userId,
+          pollId,
+        },
       },
     });
 
-    if (existingVote) {
-      throw new Error("You have already voted in this poll.");
+    let vote;
+
+    if (!existingVote) {
+      // No previous vote → create new
+      console.log("create new vote @@@@@@@@@@");
+
+      vote = await prisma.pollVote.create({
+        data: {
+          userId,
+          pollId,
+          pollOptionId,
+        },
+      });
+    } else if (existingVote.pollOptionId !== pollOptionId) {
+      // User voted before but chose another option → update
+      console.log("update it @@@@@@@@");
+
+      vote = await prisma.pollVote.update({
+        where: {
+          userId_pollId: {
+            userId,
+            pollId,
+          },
+        },
+        data: {
+          pollOptionId,
+        },
+      });
+    } else {
+      // User voted for the same option again → do nothing
+      console.log("did nothing @@@@@@@@");
+
+      vote = existingVote;
     }
 
-    // Create vote
-    await prisma.pollVote.create({
-      data: {
-        userId,
-        pollId,
-        pollOptionId,
-      },
-    });
+    console.log("✅ Final vote state:", vote);
 
-    // Revalidate to refresh UI
     revalidatePath("/");
+    return vote;
   } catch (err) {
-    console.log(err);
+    console.error("❌ Error while voting:", err);
     throw new Error("Something went wrong while voting.");
   }
 };

@@ -16,7 +16,7 @@ export default function PollBlock({ pollId, options }: PollBlockProps) {
   );
 
   return (
-    <div className="flex flex-col gap-3 mt-2 border border-blue-300 p-4 rounded-md bg-blue-50">
+    <div className="grid  mt-4 gap-2">
       {options.map((option) => {
         const voteCount = option.votes?.length || 0;
         const percentage = totalVotes
@@ -28,29 +28,26 @@ export default function PollBlock({ pollId, options }: PollBlockProps) {
             key={option.id}
             action={async () => {
               "use server";
-              console.log(pollId, option.id);
-
-              // await voteOnPoll(pollId, option.id);
+              await voteOnPoll(pollId, option.id);
             }}
-            className="flex flex-col gap-1"
           >
-            <div className="flex justify-between text-sm text-gray-700">
-              <span>{option.text}</span>
-              <span>
-                {voteCount} vote{voteCount !== 1 ? "s" : ""} ({percentage}%)
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded h-2">
-              <div
-                className="bg-blue-500 h-2 rounded"
-                style={{ width: `${percentage}%` }}
-              ></div>
-            </div>
             <button
               type="submit"
-              className="mt-1 text-xs text-blue-600 hover:underline self-end"
+              className="relative w-full text-left px-4 py-2 rounded-md overflow-hidden bg-slate-100"
             >
-              Vote
+              {/* Background progress */}
+              <div
+                className="absolute top-0 left-0 h-full bg-blue-200"
+                style={{ width: `${percentage}%` }}
+              ></div>
+
+              {/* Content on top */}
+              <div className="relative flex justify-between text-sm text-gray-700 font-medium">
+                <span>{option.text}</span>
+                <span>
+                  {voteCount} vote{voteCount !== 1 ? "s" : ""} ({percentage}%)
+                </span>
+              </div>
             </button>
           </form>
         );

@@ -15,6 +15,7 @@ const AddPost = () => {
   const [pollCount, setPollCount] = useState<number>(0);
   const [inputValues, setInputValues] = useState<string[]>([]);
   const [activePoll, setActivePoll] = useState(false);
+  const [subscriptionOnly, setSubscriptionOnly] = useState(false);
 
   // const handleSubmit = (event) => {
   //   event.preventDefault();
@@ -41,13 +42,21 @@ const AddPost = () => {
           // onSubmit={handleSubmit}
           action={async (formData) => {
             const cleanedPolls = inputValues.filter((val) => val.trim() !== "");
+            console.log(subscriptionOnly);
+
             await addPost(
               formData,
               img?.secure_url || "",
-              activePoll ? cleanedPolls : undefined
+              activePoll ? cleanedPolls : undefined,
+              subscriptionOnly // pass the toggle state
             );
-            setInputValues([]);
-            setPollCount(0);
+
+            setDesc(""); // clear text
+            setImg(undefined); // clear image
+            setInputValues([]); // clear poll inputs
+            setPollCount(0); // reset poll count
+            setActivePoll(false); // close poll section
+            setSubscriptionOnly(false); // reset subscription toggle
           }}
           className="flex gap-4"
         >
@@ -155,8 +164,25 @@ const AddPost = () => {
             Poll
           </div>
           <div className="flex items-center gap-2 cursor-pointer">
-            <Image src="/addevent.png" alt="" width={20} height={20} />
-            Event
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                type="button"
+                id="subscription-toggle"
+                onClick={() => {
+                  setSubscriptionOnly((prev) => !prev);
+                }}
+                className={`w-12 h-6 flex items-center rounded-full p-1 duration-300 ${
+                  subscriptionOnly
+                    ? "bg-green-500 justify-end"
+                    : "bg-gray-300 justify-start"
+                }`}
+              >
+                <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+              </button>
+              <label htmlFor="subscription-toggle" className="text-gray-600">
+                Subscription Only
+              </label>
+            </div>
           </div>
         </div>
       </div>

@@ -14,10 +14,10 @@ type FeedPostType = PostType & {
   _count: { comments: number };
   poll?: {
     id: number;
-    options?: {
+    options: {
       id: number;
       text: string;
-      votes: { userId: string }[];
+      votes: { userId: string }[]; // ✅ will be populated now
     }[];
   };
 };
