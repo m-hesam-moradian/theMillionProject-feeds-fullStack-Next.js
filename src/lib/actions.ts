@@ -347,10 +347,11 @@ export const getPosts = async () => {
 export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
   const { userId } = auth();
 
-  if (!userId) throw new Error("User is not authenticated!");
+  if (!userId) return { error: "User is not authenticated!" };
+
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user?.isSubscribed) {
-    throw new Error("Only subscribed users can vote on polls!");
+    return { error: "Only subscribed users can vote on polls!" };
   }
 
   const option = await prisma.pollOption.findUnique({
@@ -358,11 +359,10 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
   });
 
   if (!option || option.pollId !== pollId) {
-    throw new Error("Invalid poll option for this poll.");
+    return { error: "Invalid poll option for this poll." };
   }
 
   try {
-    // Check if user already voted
     const existingVote = await prisma.pollVote.findUnique({
       where: {
         userId_pollId: {
@@ -375,9 +375,6 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
     let vote;
 
     if (!existingVote) {
-      // No previous vote → create new
-      console.log("create new vote @@@@@@@@@@");
-
       vote = await prisma.pollVote.create({
         data: {
           userId,
@@ -386,9 +383,6 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
         },
       });
     } else if (existingVote.pollOptionId !== pollOptionId) {
-      // User voted before but chose another option → update
-      console.log("update it @@@@@@@@");
-
       vote = await prisma.pollVote.update({
         where: {
           userId_pollId: {
@@ -401,19 +395,14 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
         },
       });
     } else {
-      // User voted for the same option again → do nothing
-      console.log("did nothing @@@@@@@@");
-
       vote = existingVote;
     }
 
-    console.log("✅ Final vote state:", vote);
-
     revalidatePath("/");
-    return vote;
+    return { vote };
   } catch (err) {
     console.error("❌ Error while voting:", err);
-    throw new Error("Something went wrong while voting.");
+    return { error: "Something went wrong while voting." };
   }
 };
 

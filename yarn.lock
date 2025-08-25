@@ -2863,6 +2863,11 @@ svix@^1.69.0:
     url-parse "^1.5.10"
     uuid "^10.0.0"
 
+sweetalert2@^11.22.4:
+  version "11.22.4"
+  resolved "https://registry.npmjs.org/sweetalert2/-/sweetalert2-11.22.4.tgz"
+  integrity sha512-JwcRODfozxiKmspFp+xctZ2izAmLAKbRPcoLMEW7LdugN/YmNrX1LT7hdBW87qsgupEO1ukBBuB17KzKFKW0tg==
+
 swr@^2.2.0:
   version "2.2.5"
   resolved "https://registry.npmjs.org/swr/-/swr-2.2.5.tgz"
