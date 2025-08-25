@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import AddPostButton from "./AddPostButton";
 import { addPost } from "@/lib/actions";
+import Swal from "sweetalert2";
 
 const AddPost = () => {
   const { user, isLoaded } = useUser();
@@ -35,12 +36,27 @@ const AddPost = () => {
         <form
           action={async (formData) => {
             const cleanedPolls = inputValues.filter((val) => val.trim() !== "");
-            await addPost(
+            const result = await addPost(
               formData,
               img?.secure_url || "",
               activePoll ? cleanedPolls : undefined,
               subscriptionOnly
             );
+
+            if (result.error) {
+              Swal.fire({
+                icon: "error",
+                title: "Oops!",
+                text: result.error,
+              });
+              return;
+            }
+
+            Swal.fire({
+              icon: "success",
+              title: "Post created!",
+              text: "Your post has been successfully published.",
+            });
             // Reset form
             setDesc("");
             setImg(undefined);

@@ -258,6 +258,7 @@ export const addComment = async (postId: number, desc: string) => {
     throw new Error("Something went wrong!");
   }
 };
+
 export const addPost = async (
   formData: FormData,
   img: string,
@@ -265,44 +266,46 @@ export const addPost = async (
   subscriptionOnly?: boolean
 ) => {
   const { userId } = auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) return { error: "Unauthorized" };
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-
+  const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user || user.role !== "ADMIN") {
-    throw new Error("Forbidden: Only admins can post");
+    return { error: "Forbidden: Only admins can post" };
   }
 
   const desc = formData.get("desc")?.toString() || "";
-
-  // ❌ Prevent creating empty posts
   const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
+
   if (!desc.trim() && !img && cleanedPolls.length === 0) {
-    throw new Error("Cannot create an empty post!");
+    return { error: "Cannot create an empty post!" };
   }
 
-  const post = await prisma.post.create({
-    data: {
-      desc,
-      img,
-      userId: user.id,
-      subscriptionOnly: subscriptionOnly || false,
-      poll: cleanedPolls.length
-        ? {
-            create: {
-              options: {
-                create: cleanedPolls.map((text) => ({ text })),
+  try {
+    const post = await prisma.post.create({
+      data: {
+        desc,
+        img,
+        userId: user.id,
+        subscriptionOnly: subscriptionOnly || false,
+        poll: cleanedPolls.length
+          ? {
+              create: {
+                options: {
+                  create: cleanedPolls.map((text) => ({ text })),
+                },
               },
-            },
-          }
-        : undefined,
-    },
-  });
+            }
+          : undefined,
+      },
+    });
 
-  console.log("Created post:", post);
-  revalidatePath("/");
+    console.log("Created post:", post);
+    revalidatePath("/");
+    return { post };
+  } catch (err) {
+    console.error("❌ Error creating post:", err);
+    return { error: "Something went wrong while creating the post." };
+  }
 };
 
 export const getPosts = async () => {
