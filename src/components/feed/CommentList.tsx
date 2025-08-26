@@ -87,13 +87,13 @@ const CommentList = ({
                 onChange={(e) => setDesc(e.target.value)}
               />
 
-              <Image
+              {/* <Image
                 src="/emoji.png"
                 alt=""
                 width={16}
                 height={16}
                 className="cursor-pointer"
-              />
+              /> */}
             </form>
           </div>
         )}
