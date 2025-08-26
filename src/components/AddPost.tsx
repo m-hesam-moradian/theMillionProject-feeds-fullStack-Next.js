@@ -69,13 +69,13 @@ const AddPost = () => {
         >
           {/* Image Preview */}
           {img?.secure_url && (
-            <div className="relative w-24 h-24 mt-2">
+            <div className="relative mt-2 w-40 h-full">
               <Image
                 src={img.secure_url}
                 alt="Preview"
                 width={96}
                 height={96}
-                className="object-cover rounded-md"
+                className="object-cover rounded-md h-full w-40 "
               />
               <button
                 type="button"

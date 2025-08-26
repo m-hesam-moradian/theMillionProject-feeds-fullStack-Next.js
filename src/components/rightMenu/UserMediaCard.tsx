@@ -35,8 +35,13 @@ const UserMediaCard = async ({ user }: { user: User }) => {
                   src={post.img!}
                   alt=""
                   fill
-                  className="object-contain rounded-md"
+                  className="object-contain rounded-md bg-slate-400"
                 />
+                {post.desc && (
+                  <p className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 line-clamp-1">
+                    {post.desc}
+                  </p>
+                )}
               </div>
             ))
           : "No media found!"}

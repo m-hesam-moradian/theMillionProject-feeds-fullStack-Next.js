@@ -1,10 +1,11 @@
 "use client";
 
-import { addComment } from "@/lib/actions";
+import { addComment, getCurrentUserRole } from "@/lib/actions"; // 👈 import role action
 import { useUser } from "@clerk/nextjs";
 import { Comment, User } from "@prisma/client";
 import Image from "next/image";
-import { useOptimistic, useState } from "react";
+import { useOptimistic, useState, useEffect } from "react";
+
 type CommentWithUser = Comment & { user: User };
 
 const CommentList = ({
@@ -17,6 +18,15 @@ const CommentList = ({
   const { user } = useUser();
   const [commentState, setCommentState] = useState(comments);
   const [desc, setDesc] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); // 👈 track admin
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      const role = await getCurrentUserRole(); // call server action
+      setIsAdmin(role === "ADMIN");
+    };
+    fetchRole();
+  }, []);
 
   const add = async () => {
     if (!user || !desc) return;
@@ -53,47 +63,48 @@ const CommentList = ({
     commentState,
     (state, value: CommentWithUser) => [value, ...state]
   );
+
   return (
     <>
-      {user && (
-        <div className="  flex items-center gap-4">
-          <Image
-            src={user.imageUrl || "noAvatar.png"}
-            alt=""
-            width={32}
-            height={32}
-            className="w-8 h-8 rounded-full object-cover"
-          />
-          <form
-            action={add}
-            className="flex-1 flex items-center justify-between bg-slate-100 rounded-xl text-sm px-6 py-2 w-full"
-          >
-            <input
-              type="text"
-              placeholder="Write a comment..."
-              className="bg-transparent outline-none flex-1"
-              onChange={(e) => setDesc(e.target.value)}
-            />
+      {user &&
+        isAdmin && ( // 👈 only show if ADMIN
+          <div className="flex items-center gap-4">
             <Image
-              src="/emoji.png"
+              src={user.imageUrl || "noAvatar.png"}
               alt=""
-              width={16}
-              height={16}
-              className="cursor-pointer"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-full object-cover"
             />
-          </form>
-        </div>
-      )}
-      {optimisticComments.length > 0 && (
-        <div className="m-2 p-2 shadow-inner rounded-lg  bg-slate-100">
-          {/* COMMENT */}
+            <form
+              action={add}
+              className="flex-1 flex items-center justify-between bg-slate-100 rounded-xl text-sm px-6 py-2 w-full"
+            >
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                className="bg-transparent outline-none flex-1"
+                onChange={(e) => setDesc(e.target.value)}
+              />
 
-          {optimisticComments.map((comment, index) => (
+              <Image
+                src="/emoji.png"
+                alt=""
+                width={16}
+                height={16}
+                className="cursor-pointer"
+              />
+            </form>
+          </div>
+        )}
+
+      {optimisticComments.length > 0 && (
+        <div className="m-2 p-2 shadow-inner rounded-lg bg-slate-100">
+          {optimisticComments.map((comment) => (
             <div
-              className="flex gap-4 justify-between mt-4 p-2 "
+              className="flex gap-4 justify-between mt-4 p-2"
               key={comment.id}
             >
-              {/* AVATAR */}
               <Image
                 src={comment.user.avatar || "noAvatar.png"}
                 alt=""
@@ -101,7 +112,6 @@ const CommentList = ({
                 height={40}
                 className="w-10 h-10 rounded-full object-cover"
               />
-              {/* DESC */}
               <div className="flex flex-col gap-2 flex-1">
                 <span className="font-medium">
                   {comment.user.name && comment.user.surname
@@ -124,14 +134,13 @@ const CommentList = ({
                   <div className="">Reply</div>
                 </div>
               </div>
-              {/* ICON */}
               <Image
                 src="/more.png"
                 alt=""
                 width={16}
                 height={16}
                 className="cursor-pointer w-4 h-4"
-              ></Image>
+              />
             </div>
           ))}
         </div>

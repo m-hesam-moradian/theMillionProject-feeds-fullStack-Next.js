@@ -259,6 +259,61 @@ export const addComment = async (postId: number, desc: string) => {
   }
 };
 
+// Get current logged-in user role (already have)
+export const getCurrentUserRole = async () => {
+  const { userId } = auth();
+  if (!userId) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  return user?.role || null;
+};
+
+// Get role of any user by their ID
+export const getUserRole = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  return user?.role || null;
+};
+export const toggleUserAdmin = async (targetUserId: string) => {
+  const { userId: currentUserId } = auth();
+
+  if (!currentUserId) throw new Error("Not authenticated!");
+
+  // Check if current user is admin
+  const currentUser = await prisma.user.findUnique({
+    where: { id: currentUserId },
+    select: { role: true },
+  });
+
+  if (!currentUser || currentUser.role !== "ADMIN") {
+    throw new Error("Only admins can update roles!");
+  }
+
+  // Get target user
+  const targetUser = await prisma.user.findUnique({
+    where: { id: targetUserId },
+    select: { role: true },
+  });
+
+  if (!targetUser) throw new Error("Target user not found!");
+
+  // Toggle role
+  const newRole = targetUser.role === "ADMIN" ? "USER" : "ADMIN";
+
+  const updatedUser = await prisma.user.update({
+    where: { id: targetUserId },
+    data: { role: newRole },
+  });
+
+  return updatedUser;
+};
+
 export const addPost = async (
   formData: FormData,
   img: string,

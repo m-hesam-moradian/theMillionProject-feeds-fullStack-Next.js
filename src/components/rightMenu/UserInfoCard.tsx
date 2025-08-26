@@ -73,7 +73,7 @@ const UserInfoCard = async ({ user }: { user: User }) => {
         </div>
         {user.description && <p>{user.description}</p>}
         {user.city && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             <Image src="/map.png" alt="" width={16} height={16} />
             <span>
               Living in <b>{user.city}</b>

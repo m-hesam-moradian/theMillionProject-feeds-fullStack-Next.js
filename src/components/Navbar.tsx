@@ -66,7 +66,7 @@ const Navbar = () => {
             />
             <span>Homepage</span>
           </Link>
-          <Link href="/" className="flex items-center gap-2">
+          {/* <Link href="/" className="flex items-center gap-2">
             <Image
               src="/friends.png"
               alt="Friends"
@@ -85,13 +85,13 @@ const Navbar = () => {
               className="w-4 h-4"
             />
             <span>Stories</span>
-          </Link>
+          </Link> */}
         </div>
         {/* get user from prisma data base and show user profile */}
         <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md  relative">
           <input
             type="text"
-            placeholder="search..."
+            placeholder="Search By ID..."
             className="bg-transparent outline-none"
             onFocus={(e) => {
               e.target.placeholder = "";
@@ -99,7 +99,7 @@ const Navbar = () => {
               setIsSearchbarOpen(true);
             }}
             onBlur={(e) => {
-              e.target.placeholder = "search...";
+              e.target.placeholder = "Search By ID...";
               setTimeout(() => {
                 setIsSearchbarOpen(false);
               }, 500); // 1000 milliseconds = 1 second
@@ -108,7 +108,7 @@ const Navbar = () => {
           />
           <Image src="/search.png" alt="" width={14} height={14} />
           {/* a float div to show searched users by profile picture and name */}
-          <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto">
+          <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto z-50">
             {isSearchbarOpen &&
               results.map((user) => (
                 <Link
