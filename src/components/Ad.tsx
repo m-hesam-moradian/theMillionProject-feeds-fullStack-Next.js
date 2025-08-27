@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const Ad = ({ size }: { size: "sm" | "md" | "lg" }) => {
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md text-sm ">
+    <div className="relative p-4 bg-white rounded-lg shadow-md text-sm ">
       {/* TOP */}
       <div className="flex items-center justify-between text-gray-500 font-medium">
         <span>Sponsored Ads</span>
@@ -44,6 +44,9 @@ const Ad = ({ size }: { size: "sm" | "md" | "lg" }) => {
         <button className="bg-gray-200 text-gray-500 p-2 text-xs rounded-lg">
           Learn more
         </button>
+      </div>
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+        <span className="text-gray-600 text-sm">Coming Soon...</span>
       </div>
     </div>
   );

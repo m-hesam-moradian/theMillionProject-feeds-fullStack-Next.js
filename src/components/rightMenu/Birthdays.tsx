@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Birthdays = () => {
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
+    <div className="relative p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
       {/* TOP */}
       <div className="flex justify-between items-center font-medium">
         <span className="text-gray-500">Birthdays</span>
@@ -37,6 +37,9 @@ const Birthdays = () => {
             See other 16 have upcoming birthdays
           </span>
         </Link>
+      </div>
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+        <span className="text-gray-600 text-sm">Coming Soon...</span>
       </div>
     </div>
   );
