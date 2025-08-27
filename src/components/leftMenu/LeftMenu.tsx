@@ -92,7 +92,7 @@ const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
         </div>
       </div>
 
-      {/* <Ad size="sm" /> */}
+      <Ad size="sm" />
     </div>
   );
 };
