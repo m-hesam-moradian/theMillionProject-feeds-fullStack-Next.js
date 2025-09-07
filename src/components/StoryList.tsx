@@ -45,8 +45,8 @@ const StoryList = ({
         work: "",
         school: "",
         website: "",
-        createdAt: new Date(Date.now()),
-      },
+        createdAt: new Date(),
+      } as unknown as User, // <--- cast to User
     });
 
     try {

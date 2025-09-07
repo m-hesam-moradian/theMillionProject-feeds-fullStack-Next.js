@@ -50,8 +50,8 @@ const CommentList = ({
         work: "",
         school: "",
         website: "",
-        createdAt: new Date(Date.now()),
-      },
+        createdAt: new Date(),
+      } as unknown as User,
     });
     try {
       const createdComment = await addComment(postId, desc);
