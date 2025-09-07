@@ -107,6 +107,7 @@ const AddPost = () => {
           />
 
           {/* Poll Inputs */}
+
           {activePoll && (
             <div className="grid grid-cols-2 gap-2 mt-2">
               {Array.from({ length: pollCount }, (_, index) => (

@@ -26,6 +26,13 @@ export default function RootLayout({
           <div className=" bg-[#eff2ef] px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
             {children}
           </div>
+          <div className="text-center h-[35px] text-gray-500 shadow-inner flex items-center justify-center">
+            <span className="mr-1">Developed by</span>
+            <span className="font-semibold">
+              M.He<span className="text-main_third mr-1">sam</span>
+              <span className="text-main_third">Moradian</span>
+            </span>
+          </div>
         </body>
       </html>
     </ClerkProvider>
