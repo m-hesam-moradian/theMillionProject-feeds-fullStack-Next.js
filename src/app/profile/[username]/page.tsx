@@ -88,7 +88,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
               </div>
             </div>
           </div>
-          <Feed username={user.username} />
+          <Feed />
         </div>
       </div>
       <div className="hidden lg:block w-[30%]">

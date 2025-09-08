@@ -1,7 +1,7 @@
 import Post from "./Post";
 import { getPosts } from "@/lib/actions";
 
-const Feed = async ({ username }) => {
+const Feed = async () => {
   const posts = await getPosts();
 
   return (
