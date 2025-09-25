@@ -10,16 +10,16 @@ import PollBlock from "./PollBlock"; // adjust path if needed
 
 type FeedPostType = PostType & {
   user: User;
-  likes: [{ userId: string }];
+  likes: { userId: string }[]; // ✅ array, not tuple
   _count: { comments: number };
-  poll?: {
+  poll: {
     id: number;
     options: {
       id: number;
       text: string;
-      votes: { userId: string }[]; // ✅ will be populated now
+      votes: { userId: string }[];
     }[];
-  };
+  } | null; // ✅ Prisma returns null if no poll
 };
 
 const Post = ({ post }: { post: FeedPostType }) => {

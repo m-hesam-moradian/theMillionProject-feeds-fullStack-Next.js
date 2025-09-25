@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/components/feed/Feed.jsx"
+    "src/components/feed/Feed.tsx"
   ],
   "exclude": ["node_modules"]
 }

@@ -21,19 +21,20 @@ export default function MemberStorage() {
       console.error("localStorage error:", e.message);
     }
   }, []);
+  console.log("MemberStorage render:", { memberDetails, error });
 
   return (
     <div>
-      <h1>Welcome to The Million Project</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-500">{error}</p>}
       {memberDetails ? (
         <div>
-          <p>Name: {memberDetails.memberName}</p>
-          <p>Email: {memberDetails.loginEmail}</p>
-          <p>Status: {memberDetails.status}</p>
+          <h2 className="font-bold">Member Details</h2>
+          <p>Name: {memberDetails.name}</p>
+          <p>Email: {memberDetails.email}</p>
+          <p>ID: {memberDetails.id}</p>
         </div>
       ) : (
-        <p>Loading member details...</p>
+        <p>Loading...</p>
       )}
     </div>
   );
