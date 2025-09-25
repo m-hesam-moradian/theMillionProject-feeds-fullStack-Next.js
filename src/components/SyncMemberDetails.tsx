@@ -13,7 +13,7 @@ export default function SyncMemberDetails() {
     }
   }, []);
 
-  return null; // no UI, just side effect
+  return null;
 }
 
 // @@@@@@@@@@@@@@@@@@@@ example usage on server side @@@@@@@@@@@@@@@@@@@@
