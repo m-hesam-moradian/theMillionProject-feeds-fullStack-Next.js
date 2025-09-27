@@ -1,30 +1,22 @@
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
-import { ClerkProvider } from "@clerk/nextjs";
-import SyncMemberDetails from "@/components/SyncMemberDetails";
-const inter = Inter({ subsets: ["latin"] });
+import { CustomAuthProvider } from "@/components/CustomAuthProvider";
+import Navbar from "@/components/Navbar"; // Adjust import path
 
-export const metadata: Metadata = {
-  title: "Lama Dev Social Media App",
-  description: "Social media app built with Next.js",
-};
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <ClerkProvider>
+    <CustomAuthProvider>
       <html lang="en">
         <body className={inter.className}>
-          <SyncMemberDetails />
           <div className="w-full bg-white px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
             <Navbar />
           </div>
-          <div className=" bg-[#eff2ef] px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+          <div className="bg-[#eff2ef] px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
             {children}
           </div>
           <div className="text-center h-[35px] text-gray-500 shadow-inner flex items-center justify-center">
@@ -36,6 +28,6 @@ export default function RootLayout({
           </div>
         </body>
       </html>
-    </ClerkProvider>
+    </CustomAuthProvider>
   );
 }
