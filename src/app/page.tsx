@@ -19,6 +19,14 @@ export function getMemberDetails() {
 const member = getMemberDetails();
 console.log(member);
 
+const obj = {
+  id: member.id,
+  username: member.firstName,
+  avatar: member.imageUrl,
+  name: member.memberName,
+  surname: member.lastName,
+};
+
 const Homepage = () => {
   return (
     <div className="flex gap-6 pt-6">

@@ -25,11 +25,11 @@ export default function SyncMemberDetails() {
 
 //   if (!raw) return null;
 
-//   try {
-//     return JSON.parse(decodeURIComponent(raw));
-//   } catch {
-//     return null;
-//   }
+// try {
+//   return JSON.parse(decodeURIComponent(raw));
+// } catch {
+//   return null;
+// }
 // }
 // const Feed = async () => {
 //   const member = getMemberDetails();
