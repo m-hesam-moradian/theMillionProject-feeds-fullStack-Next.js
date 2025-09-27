@@ -16,7 +16,7 @@ export default function SyncMemberDetails() {
   return null;
 }
 
-// @@@@@@@@@@@@@@@@@@@@ example usage on server side @@@@@@@@@@@@@@@@@@@@
+// // @@@@@@@@@@@@@@@@@@@@ example usage on server side @@@@@@@@@@@@@@@@@@@@
 // import { cookies } from "next/headers";
 
 // export function getMemberDetails() {

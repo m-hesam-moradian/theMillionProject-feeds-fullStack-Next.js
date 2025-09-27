@@ -1,0 +1,2 @@
+id,username,avatar,cover,name,surname,description,city,school,work,website,createdAt,role,isSubscribed
+"user1","uniqueuser1","https://example.com/avatar.jpg","https://example.com/cover.jpg","John","Doe","Sample bio","New York","Harvard","Engineer","https://johndoe.com","2024-09-27T00:00:00Z","USER",false

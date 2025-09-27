@@ -2,6 +2,22 @@ import AddPostWrapper from "@/components/AddPostWrapper";
 import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
+import { cookies } from "next/headers";
+
+export function getMemberDetails() {
+  const cookieStore = cookies();
+  const raw = cookieStore.get("memberDetails")?.value;
+
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(decodeURIComponent(raw));
+  } catch {
+    return null;
+  }
+}
+const member = getMemberDetails();
+console.log(member);
 
 const Homepage = () => {
   return (
