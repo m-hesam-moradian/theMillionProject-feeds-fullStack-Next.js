@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
 
-// Define the shape of memberDetails based on your object
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie"; // npm install js-cookie
+
 interface MemberDetails {
   id?: string;
   contactId?: string;
@@ -23,13 +24,11 @@ interface MemberDetails {
   [key: string]: any;
 }
 
-// Define the hook's return type
 interface MemberStorageResult {
   memberDetails: MemberDetails | null;
   error: string | null;
 }
 
-// Singleton cache to avoid multiple localStorage reads
 let cachedMemberDetails: MemberDetails | null = null;
 let cachedError: string | null = null;
 
@@ -47,22 +46,32 @@ export function useMemberStorage(): MemberStorageResult {
     }
 
     try {
-      const storedData = localStorage.getItem("__wix.memberDetails");
-      if (storedData) {
-        const parsedData: MemberDetails = JSON.parse(storedData);
+      const localData = localStorage.getItem("__wix.memberDetails");
+      const cookieData = Cookies.get("__wix.memberDetails");
+
+      let parsedData: MemberDetails | null = null;
+
+      if (localData) {
+        parsedData = JSON.parse(localData);
+        Cookies.set("__wix.memberDetails", localData, { expires: 7 }); // sync to cookie
+        console.log("Retrieved from localStorage:", parsedData);
+      } else if (cookieData) {
+        parsedData = JSON.parse(cookieData);
+        console.log("Retrieved from cookie:", parsedData);
+      }
+
+      if (parsedData) {
         cachedMemberDetails = parsedData;
         setMemberDetails(parsedData);
-        console.log("Retrieved from localStorage:", parsedData);
       } else {
-        cachedError = "No member details found in localStorage";
+        cachedError = "No member details found in localStorage or cookies";
         setError(cachedError);
-        console.log("No data in __wix.memberDetails");
       }
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : "Unknown error";
-      cachedError = `Failed to access localStorage: ${errorMessage}`;
+      cachedError = `Failed to access storage: ${errorMessage}`;
       setError(cachedError);
-      console.error("localStorage error:", errorMessage);
+      console.error("Storage error:", errorMessage);
     }
   }, []);
 
