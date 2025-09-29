@@ -55,6 +55,11 @@ const LoginValidator = () => {
           document.cookie = `UserInfo=${encodeURIComponent(
             JSON.stringify(data.user)
           )}; path=/; max-age=86400`;
+          await fetch("/api/loginSync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data.user),
+          });
           Swal.close();
           return true;
         } else {
