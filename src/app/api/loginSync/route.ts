@@ -1,15 +1,25 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { validateAndPostUser } from "@/lib/validateAndPostUser";
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
+export async function POST(req: NextRequest) {
+  try {
+    const user = await req.json();
+    const result = await validateAndPostUser(user);
 
-  const user = req.body;
-
-  const result = await validateAndPostUser(user);
-
-  if (result.success) {
-    res.status(200).json({ success: true });
-  } else {
-    res.status(500).json({ success: false, error: result.error });
+    if (result.success) {
+      return NextResponse.json({ success: true });
+    } else {
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: 500 }
+      );
+    }
+  } catch (err: any) {
+    console.error("❌ API failure:", err.message);
+    return NextResponse.json(
+      { success: false, error: err.message },
+      { status: 500 }
+    );
   }
 }

@@ -1,9 +1,11 @@
-// lib/validateAndPostUser.ts
 export async function validateAndPostUser(
   user: any
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log("📥 Incoming user object:", user);
+
     if (!user?.id || !user?.loginEmail) {
+      console.log("❌ Missing required fields");
       return {
         success: false,
         error: "Missing required fields: id or loginEmail",
@@ -25,6 +27,8 @@ export async function validateAndPostUser(
       createdAt: new Date().toISOString(),
     };
 
+    console.log("📦 Prepared payload for Wix:", payload);
+
     const res = await fetch(
       "https://www.themillionproject.org/_functions/addUser",
       {
@@ -34,12 +38,17 @@ export async function validateAndPostUser(
       }
     );
 
-    const result = await res.json();
-    console.log("✅ User posted to Wix:", result);
+    const text = await res.text();
+    console.log(`🌐 Wix response status: ${res.status}`);
+    console.log("📨 Wix response body:", text);
+
+    if (!res.ok) {
+      return { success: false, error: `Wix returned ${res.status}` };
+    }
 
     return { success: true };
   } catch (err: any) {
-    console.error("❌ Failed to post user:", err.message);
+    console.error("🔥 validateAndPostUser failed:", err.message);
     return { success: false, error: err.message };
   }
 }
