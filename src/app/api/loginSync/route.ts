@@ -8,15 +8,16 @@ export async function POST(req: NextRequest) {
     const result = await validateAndPostUser(user);
 
     if (result.success) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true }, { status: 200 });
     } else {
+      console.error("❌ loginSync failed:", result.error);
       return NextResponse.json(
         { success: false, error: result.error },
         { status: 500 }
       );
     }
   } catch (err: any) {
-    console.error("❌ API failure:", err.message);
+    console.error("🔥 loginSync crashed:", err.message);
     return NextResponse.json(
       { success: false, error: err.message },
       { status: 500 }

@@ -2,16 +2,6 @@ export async function validateAndPostUser(
   user: any
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log("📥 Incoming user object:", user);
-
-    if (!user?.id || !user?.loginEmail) {
-      console.log("❌ Missing required fields");
-      return {
-        success: false,
-        error: "Missing required fields: id or loginEmail",
-      };
-    }
-
     const payload = {
       id: user.id,
       username: user.nickname || user.memberName || user.loginEmail,
@@ -27,8 +17,6 @@ export async function validateAndPostUser(
       createdAt: new Date().toISOString(),
     };
 
-    console.log("📦 Prepared payload for Wix:", payload);
-
     const res = await fetch(
       "https://www.themillionproject.org/_functions/addUser",
       {
@@ -38,15 +26,25 @@ export async function validateAndPostUser(
       }
     );
 
-    const text = await res.text();
-    console.log(`🌐 Wix response status: ${res.status}`);
-    console.log("📨 Wix response body:", text);
+    const raw = await res.text();
+    console.log(`🌐 Wix status: ${res.status}`);
+    console.log("📨 Wix raw response:", raw);
 
-    if (!res.ok) {
-      return { success: false, error: `Wix returned ${res.status}` };
+    // Try to parse only if there's content
+    let parsed;
+    if (raw.trim()) {
+      try {
+        parsed = JSON.parse(raw);
+      } catch (err) {
+        console.warn("⚠️ Failed to parse JSON:", err.message);
+      }
     }
 
-    return { success: true };
+    if (res.ok) {
+      return { success: true };
+    } else {
+      return { success: false, error: `Wix returned ${res.status}: ${raw}` };
+    }
   } catch (err: any) {
     console.error("🔥 validateAndPostUser failed:", err.message);
     return { success: false, error: err.message };
