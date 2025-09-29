@@ -35,7 +35,7 @@ export async function validateAndPostUser(
     if (raw.trim()) {
       try {
         parsed = JSON.parse(raw);
-      } catch (err) {
+      } catch (err: string | any) {
         console.warn("⚠️ Failed to parse JSON:", err.message);
       }
     }
