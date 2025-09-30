@@ -45,9 +45,24 @@ model User {
   stories                Story[]
   isSubscribed Boolean @default(false)
   pollVotes PollVote[]
-
-
 }
+Collection Id : SocialMedia-User
+| Field Key        | Type                 | Required               | Notes                                   |
+| ---------------- | -------------------- | ---------------------- | --------------------------------------- |
+| **id**           | Text / ID            | ✅ Yes                  | Primary key (unique user ID).           |
+| **username**     | Text                 | ✅ Yes                  | Unique handle for login/identification. |
+| **avatar**       | Text / URL           | ❌ No                   | Profile picture link.                   |
+| **cover**        | Text / URL           | ❌ No                   | Cover image link.                       |
+| **name**         | Text                 | ❌ No                   | First name.                             |
+| **surname**      | Text                 | ❌ No                   | Last name.                              |
+| **description**  | Text (Rich optional) | ❌ No                   | User bio.                               |
+| **city**         | Text                 | ❌ No                   | City of residence.                      |
+| **school**       | Text                 | ❌ No                   | School name.                            |
+| **work**         | Text                 | ❌ No                   | Workplace.                              |
+| **website**      | URL / Text           | ❌ No                   | User’s website.                         |
+| **createdAt**    | Date/Time            | ✅ Yes (default now)    | When the user signed up.                |
+| **role**         | Text / Enum          | ✅ Yes (default = USER) | Role (e.g. USER, ADMIN).                |
+| **isSubscribed** | Boolean              | ❌ No                   | Subscription status.                    |
 
 model Poll {
   id         Int           @id @default(autoincrement())
@@ -57,8 +72,6 @@ model Poll {
   votes      PollVote[]
   expiresAt  DateTime?
 }
-
-
 model PollOption {
   id        Int      @id @default(autoincrement())
   text      String
@@ -66,7 +79,6 @@ model PollOption {
   pollId    Int
   votes     PollVote[]
 }
-
 model PollVote {
   id           Int        @id @default(autoincrement())
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -78,10 +90,6 @@ model PollVote {
 
   @@unique([userId, pollId]) // 👈 Update this to enforce one vote per poll
 }
-
-
-
-
 model Post {
   id              Int       @id @default(autoincrement())
   desc            String
@@ -95,10 +103,6 @@ model Post {
   poll            Poll?
   subscriptionOnly Boolean  @default(false) // <-- new field
 }
-
-
-
-
 model Comment {
   id        Int      @id @default(autoincrement())
   desc      String
@@ -110,7 +114,6 @@ model Comment {
   postId    Int
   likes     Like[]
 }
-
 model Like {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -121,7 +124,6 @@ model Like {
   Comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int?
 }
-
 model Follower {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
@@ -130,7 +132,6 @@ model Follower {
   following   User     @relation("UserFollowings", fields: [followingId], references: [id], onDelete: Cascade)
   followingId String
 }
-
 model FollowRequest {
   id         Int      @id @default(autoincrement())
   createdAt  DateTime @default(now())
@@ -141,7 +142,6 @@ model FollowRequest {
 
   @@unique([senderId, receiverId])
 }
-
 model Block {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -152,7 +152,6 @@ model Block {
 
   @@unique([blockerId, blockedId])
 }
-
 model Story {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())

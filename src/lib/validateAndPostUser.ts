@@ -2,21 +2,25 @@ export async function validateAndPostUser(
   user: any
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Build payload based on SocialMedia-User schema
     const payload = {
       id: user.id,
-      username: user.nickname || user.memberName || user.loginEmail,
+      username: user.nickname || user.memberName || user.loginEmail || "", // required
       avatar: user.picture?.url || "",
+      cover: "",
       name: user.firstName || "",
       surname: user.lastName || "",
-      cover: "",
       description: "",
       city: "",
       school: "",
       work: "",
       website: "",
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(), // required, default now
+      role: user.role || "USER", // required, default USER
+      isSubscribed: user.isSubscribed ?? false, // default false
     };
 
+    // POST to Wix function
     const res = await fetch(
       "https://www.themillionproject.org/_functions/addUser",
       {
@@ -35,7 +39,7 @@ export async function validateAndPostUser(
     if (raw.trim()) {
       try {
         parsed = JSON.parse(raw);
-      } catch (err: string | any) {
+      } catch (err: any) {
         console.warn("⚠️ Failed to parse JSON:", err.message);
       }
     }
