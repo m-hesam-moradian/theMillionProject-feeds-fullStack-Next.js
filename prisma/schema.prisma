@@ -65,6 +65,7 @@ Collection Id : SocialMedia-User
 | **isSubscribed** | Boolean              | ❌ No                   | Subscription status.                    |
 
 
+
 model Poll {
   id         Int           @id @default(autoincrement())
   post       Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
