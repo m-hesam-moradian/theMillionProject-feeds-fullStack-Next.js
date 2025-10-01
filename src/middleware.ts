@@ -64,7 +64,8 @@ export async function middleware(req: NextRequest) {
       const token = await createJWT(payload);
 
       // Set JWT cookie
-      const res = NextResponse.next();
+      const res = NextResponse.redirect(new URL("/", req.url));
+
       res.cookies.set("authToken", token, {
         path: "/",
         httpOnly: true,
