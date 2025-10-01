@@ -5,9 +5,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { validateAndPostUser } from "@/lib/validateAndPostUser";
 
 const LOGIN_URL = "https://www.themillionproject.org/";
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "supersecretkey"
-);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 async function createJWT(payload: any) {
   return await new SignJWT(payload)
