@@ -1,10 +1,11 @@
 import prisma from "@/lib/client";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 
 const ProfileCard = async () => {
-  const { userId } = auth();
+  // const { userId } = auth();
+  const userId = "34567890"; // Mocked userId, replace with actual auth logic
 
   if (!userId) return null;
 

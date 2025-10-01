@@ -1,5 +1,5 @@
 import prisma from "@/lib/client";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,7 +19,8 @@ const UserInfoCard = async ({ user }: { user: User }) => {
   let isFollowing = false;
   let isFollowingSent = false;
 
-  const { userId: currentUserId } = auth();
+  // const { userId: currentUserId } = auth();
+  const currentUserId = "34567890"; // Mocked currentUserId, replace with actual auth logic
 
   if (currentUserId) {
     const blockRes = await prisma.block.findFirst({

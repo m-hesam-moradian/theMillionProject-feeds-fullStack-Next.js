@@ -1,7 +1,7 @@
 "use client";
 
 import { addStory } from "@/lib/actions";
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs";
 import { Story, User } from "@prisma/client";
 import { CldUploadWidget } from "next-cloudinary";
 // import { CldUploadWidget } from "next-cloudinary";
@@ -22,8 +22,8 @@ const StoryList = ({
   const [storyList, setStoryList] = useState(stories);
   const [img, setImg] = useState<any>();
 
-  const { user, isLoaded } = useUser();
-
+  // const { user, isLoaded } = useUser();
+  const user = { id: "", username: "", imageUrl: "" };
   const add = async () => {
     if (!img?.secure_url) return;
 

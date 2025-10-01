@@ -1,13 +1,16 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { kMaxLength } from "buffer";
 
+const userId = "34567890"; // Mocked userId, replace with actual auth logic
+const currentUserId = "34567890"; // Mocked currentUserId, replace with actual auth logic
+
 export const switchFollow = async (userId: string) => {
-  const { userId: currentUserId } = auth();
+  // const { userId: currentUserId } = auth();
 
   if (!currentUserId) {
     throw new Error("User is not authenticated!");
@@ -57,7 +60,7 @@ export const switchFollow = async (userId: string) => {
 };
 
 export const switchBlock = async (userId: string) => {
-  const { userId: currentUserId } = auth();
+  // const { userId: currentUserId } = auth();
 
   if (!currentUserId) {
     throw new Error("User is not Authenticated!!");
@@ -92,7 +95,7 @@ export const switchBlock = async (userId: string) => {
 };
 
 export const acceptFollowRequest = async (userId: string) => {
-  const { userId: currentUserId } = auth();
+  // const { userId: currentUserId } = auth();
 
   if (!currentUserId) {
     throw new Error("User is not Authenticated!!");
@@ -127,7 +130,7 @@ export const acceptFollowRequest = async (userId: string) => {
 };
 
 export const declineFollowRequest = async (userId: string) => {
-  const { userId: currentUserId } = auth();
+  // const { userId: currentUserId } = auth();
 
   if (!currentUserId) {
     throw new Error("User is not Authenticated!!");
@@ -183,7 +186,7 @@ export const updateProfile = async (
     return { success: false, error: true };
   }
 
-  const { userId } = auth();
+  // const { userId } = auth();
 
   if (!userId) {
     return { success: false, error: true };
@@ -204,7 +207,7 @@ export const updateProfile = async (
 };
 
 export const switchLike = async (postId: number) => {
-  const { userId } = auth();
+  // const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
 
@@ -237,7 +240,7 @@ export const switchLike = async (postId: number) => {
 };
 
 export const addComment = async (postId: number, desc: string) => {
-  const { userId } = auth();
+  // const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
 
@@ -261,7 +264,7 @@ export const addComment = async (postId: number, desc: string) => {
 
 // Get current logged-in user role (already have)
 export const getCurrentUserRole = async () => {
-  const { userId } = auth();
+  // const { userId } = auth();
   if (!userId) return null;
 
   const user = await prisma.user.findUnique({
@@ -281,7 +284,7 @@ export const getUserRole = async (userId: string) => {
   return user?.role || null;
 };
 export const toggleUserAdmin = async (targetUserId: string) => {
-  const { userId: currentUserId } = auth();
+  // const { userId: currentUserId } = auth();
 
   if (!currentUserId) throw new Error("Not authenticated!");
 
@@ -320,7 +323,7 @@ export const addPost = async (
   polls?: string[],
   subscriptionOnly?: boolean
 ) => {
-  const { userId } = auth();
+  // const { userId } = auth();
   if (!userId) return { error: "Unauthorized" };
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -364,7 +367,7 @@ export const addPost = async (
 };
 
 export const getPosts = async () => {
-  const { userId } = auth(); // may be null if guest
+  // const { userId } = auth(); // may be null if guest
 
   // fetch all posts with related data
   const posts = await prisma.post.findMany({
@@ -403,7 +406,7 @@ export const getPosts = async () => {
 };
 
 export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
-  const { userId } = auth();
+  // const { userId } = auth();
 
   if (!userId) return { error: "User is not authenticated!" };
 
@@ -465,7 +468,7 @@ export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
 };
 
 export const addStory = async (img: string) => {
-  const { userId } = auth();
+  // const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
 
@@ -501,7 +504,7 @@ export const addStory = async (img: string) => {
 };
 
 export const deletePost = async (postId: number) => {
-  const { userId } = auth();
+  // const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
 

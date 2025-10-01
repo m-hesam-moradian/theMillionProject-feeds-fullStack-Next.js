@@ -1,7 +1,7 @@
 "use client";
 
 import { addComment, getCurrentUserRole } from "@/lib/actions"; // 👈 import role action
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs";
 import { Comment, User } from "@prisma/client";
 import Image from "next/image";
 import { useOptimistic, useState, useEffect } from "react";
@@ -15,7 +15,8 @@ const CommentList = ({
   comments: CommentWithUser[];
   postId: number;
 }) => {
-  const { user } = useUser();
+  // const { user } = useUser();
+  let user = { id: "1", username: "AdminUser", imageUrl: "/noAvatar.png" }; // Mocked user object
   const [commentState, setCommentState] = useState(comments);
   const [desc, setDesc] = useState("");
   const [isAdmin, setIsAdmin] = useState(false); // 👈 track admin

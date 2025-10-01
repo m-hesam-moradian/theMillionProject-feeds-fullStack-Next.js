@@ -4,7 +4,7 @@ import { Post as PostType, User } from "@prisma/client";
 import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import { voteOnPoll } from "@/lib/actions";
 import PollBlock from "./PollBlock"; // adjust path if needed
 
@@ -23,7 +23,8 @@ type FeedPostType = PostType & {
 };
 
 const Post = ({ post }: { post: FeedPostType }) => {
-  const { userId } = auth();
+  // const { userId } = auth();
+  const userId = "34567890"; // Mocked userId, replace with actual auth logic
 
   const pollOptions = Array.isArray(post.poll?.options)
     ? post.poll.options

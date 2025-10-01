@@ -96,5 +96,4 @@ const LoginValidator = () => {
 
   return null;
 };
-//
 export default LoginValidator;

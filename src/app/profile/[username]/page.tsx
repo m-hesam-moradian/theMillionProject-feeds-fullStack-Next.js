@@ -2,7 +2,7 @@ import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
 import prisma from "@/lib/client";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
@@ -27,22 +27,22 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
 
   if (!user) return notFound();
 
-  const { userId: currentUserId } = auth();
+  // const { userId: currentUserId } = auth();
 
   let isBlocked;
 
-  if (currentUserId) {
-    const res = await prisma.block.findFirst({
-      where: {
-        blockerId: user.id,
-        blockedId: currentUserId,
-      },
-    });
+  // if (currentUserId) {
+  //   const res = await prisma.block.findFirst({
+  //     where: {
+  //       blockerId: user.id,
+  //       blockedId: currentUserId,
+  //     },
+  //   });
 
-    if (res) isBlocked = true;
-  } else {
-    isBlocked = false;
-  }
+  //   if (res) isBlocked = true;
+  // } else {
+  //   isBlocked = false;
+  // }
 
   if (isBlocked) return notFound();
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { switchLike } from "@/lib/actions";
-import { useAuth } from "@clerk/nextjs";
+// import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { useOptimistic, useState } from "react";
 
@@ -14,7 +14,10 @@ const PostInteraction = ({
   likes: string[];
   commentNumber: number;
 }) => {
-  const { isLoaded, userId } = useAuth();
+  // const { isLoaded, userId } = useAuth();
+  const isLoaded = true;
+  const userId = "34567890"; // Mocked userId, replace with actual auth logic
+
   const [likeState, setLikeState] = useState({
     likeCount: likes.length,
     isLiked: userId ? likes.includes(userId) : false,
@@ -71,7 +74,8 @@ const PostInteraction = ({
           />
           <span className="text-gray-300">|</span>
           <span className="text-gray-500">
-            {commentNumber}<span className="hidden md:inline"> Comments</span>
+            {commentNumber}
+            <span className="hidden md:inline"> Comments</span>
           </span>
         </div>
       </div>

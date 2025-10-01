@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useState } from "react";
@@ -9,7 +9,7 @@ import { addPost } from "@/lib/actions";
 import Swal from "sweetalert2";
 
 const AddPost = () => {
-  const { user, isLoaded } = useUser();
+  // const { user, isLoaded } = useUser();
   const [desc, setDesc] = useState("");
   const [img, setImg] = useState<any>();
   const [pollCount, setPollCount] = useState<number>(0);
@@ -17,7 +17,7 @@ const AddPost = () => {
   const [activePoll, setActivePoll] = useState(false);
   const [subscriptionOnly, setSubscriptionOnly] = useState(false);
 
-  if (!isLoaded) return "Loading...";
+  // if (!isLoaded) return "Loading...";
 
   const insertImageToTextarea = (url: string) => {
     setDesc((prev) => prev + ` ![](${url}) `); // Markdown style for embedding
@@ -26,7 +26,8 @@ const AddPost = () => {
   return (
     <div className="p-4 bg-white shadow-md rounded-lg flex gap-4 justify-between text-sm">
       <Image
-        src={user?.imageUrl || "/noAvatar.png"}
+        // src={user?.imageUrl || "/noAvatar.png"}
+        src={"/noAvatar.png"}
         alt=""
         width={48}
         height={48}
