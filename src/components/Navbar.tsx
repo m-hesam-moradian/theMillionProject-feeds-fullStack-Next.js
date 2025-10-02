@@ -44,7 +44,7 @@ const Navbar = ({ user }: NavbarProps) => {
   return (
     <div className="h-24 flex items-center justify-around relative shadow-sm px-4">
       {/* LEFT */}
-      <div className="md:hidden lg:block">
+      <div className="hidden lg:block">
         <Link href="/" className="font-bold text-xl text-gray-600">
           <img
             className="w-auto object-cover h-14"
@@ -56,8 +56,8 @@ const Navbar = ({ user }: NavbarProps) => {
       </div>
 
       {/* CENTER */}
-      <div className="hidden md:flex w-[50%] text-sm items-center justify-between">
-        <div className="flex gap-6 text-gray-600">
+      <div className="  w-[50%] text-sm items-center justify-between ">
+        <div className="hidden md:flex gap-6 text-gray-600">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/home.png"
@@ -71,11 +71,11 @@ const Navbar = ({ user }: NavbarProps) => {
         </div>
 
         {/* SEARCHBAR */}
-        <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md relative">
+        <div className="hidden md:flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md relative w-full max-w-xs">
           <input
             type="text"
             placeholder="Search By ID..."
-            className="bg-transparent outline-none"
+            className="bg-transparent outline-none w-full"
             onFocus={(e) => {
               e.target.placeholder = "";
               setIsSearchbarOpen(true);
@@ -87,9 +87,9 @@ const Navbar = ({ user }: NavbarProps) => {
             onChange={(e) => setValue(e.currentTarget.value)}
           />
           <Image src="/search.png" alt="Search" width={14} height={14} />
-          <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto z-50">
-            {isSearchbarOpen &&
-              results.map((user) => (
+          {isSearchbarOpen && (
+            <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto z-50">
+              {results.map((user) => (
                 <Link
                   key={user.id}
                   href={`/profile/${user.username}`}
@@ -107,19 +107,61 @@ const Navbar = ({ user }: NavbarProps) => {
                   </span>
                 </Link>
               ))}
-          </div>
+            </div>
+          )}
         </div>
+        {/* MOBILE SEARCH ICON */}
+        <div className="md:hidden flex items-center">
+          <button onClick={() => setIsSearchbarOpen(!isSearchbarOpen)}>
+            <Image src="/search.png" alt="Search" width={20} height={20} />
+          </button>
+        </div>
+
+        {/* MOBILE SEARCH INPUT */}
+        {isSearchbarOpen && (
+          <div className="absolute top-20 left-0 w-full px-4 md:hidden z-50">
+            <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md">
+              <input
+                type="text"
+                placeholder="Search By ID..."
+                className="bg-transparent outline-none w-full"
+                onChange={(e) => setValue(e.currentTarget.value)}
+              />
+              <Image src="/search.png" alt="Search" width={14} height={14} />
+            </div>
+            <div className="bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto mt-2">
+              {results.map((user) => (
+                <Link
+                  key={user.id}
+                  href={`/profile/${user.username}`}
+                  className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  <Image
+                    src={user.avatar || "/noAvatar.png"}
+                    alt={user.username}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <span className="font-medium">
+                    {user.name || user.username}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* RIGHT */}
       <div className="flex items-center gap-4 xl:gap-8 justify-end">
-        <div className="cursor-pointer">
+        <div className="hidden md:flex cursor-pointer">
           <Image src="/people.png" alt="" width={24} height={24} />
         </div>
-        <div className="cursor-pointer">
+        <div className="hidden md:flex cursor-pointer">
           <Image src="/messages.png" alt="" width={20} height={20} />
         </div>
-        <div className="cursor-pointer">
+        <div className="hidden md:flex cursor-pointer">
           <Image src="/notifications.png" alt="" width={20} height={20} />
         </div>
 
