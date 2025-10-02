@@ -16,9 +16,16 @@ interface User {
 interface NavbarProps {
   user: User | null;
 }
+// import { useSelector } from "react-redux";
+// import { RootState } from "@/store/store";
 
 const Navbar = ({ user }: NavbarProps) => {
+  // const user = useSelector((state: RootState) => state.user);
+  // console.log("User ID:", user.id);
+  // console.log("Username:", user.username);
+
   const [value, setValue] = useState<string>("");
+
   const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(true);
   const [results, setResults] = useState<any[]>([]);
 
