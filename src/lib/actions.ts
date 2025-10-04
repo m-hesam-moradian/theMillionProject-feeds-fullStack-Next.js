@@ -207,8 +207,6 @@ export const updateProfile = async (
 };
 
 export const switchLike = async (postId: number) => {
-  // const { userId } = auth();
-
   if (!userId) throw new Error("User is not authenticated!");
 
   try {
