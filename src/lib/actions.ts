@@ -306,7 +306,6 @@ export const toggleUserAdmin = async (targetUserId: string) => {
 
   if (!targetUser) throw new Error("Target user not found!");
 
-  // Toggle role
   const newRole = targetUser.role === "ADMIN" ? "USER" : "ADMIN";
 
   const updatedUser = await prisma.user.update({
@@ -316,7 +315,7 @@ export const toggleUserAdmin = async (targetUserId: string) => {
 
   return updatedUser;
 };
-//
+
 export const addPost = async (
   formData: FormData,
   img: string,
