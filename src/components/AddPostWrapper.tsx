@@ -1,19 +1,19 @@
-// components/AddPostWrapper.tsx
-// import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/client";
+import { cookies } from "next/headers";
 import AddPost from "./AddPost";
 
 const AddPostWrapper = async () => {
-  // const { userId } = auth();
-  // if (!userId) return null;
+  const cookieStore = cookies();
+  const userInfo = cookieStore.get("userInfo");
 
-  // const user = await prisma.user.findUnique({
-  //   // where: { id: userId },
-  // });
+  if (!userInfo) return null;
 
-  // if (user?.role !== "ADMIN") return null;
-
-  return <AddPost />;
+  try {
+    const user = JSON.parse(userInfo.value);
+    if (user.role !== "ADMIN") return null;
+    return <AddPost />;
+  } catch {
+    return null;
+  }
 };
 
 export default AddPostWrapper;

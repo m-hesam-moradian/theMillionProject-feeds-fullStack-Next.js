@@ -1,4 +1,3 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SignJWT, jwtVerify } from "jose";
@@ -48,7 +47,6 @@ export async function middleware(req: NextRequest) {
   if (queryUserId && queryUserId !== "no-user-id") {
     const user = await validateUser(queryUserId);
     if (user) {
-      // Build payload
       const payload = {
         id: user.id,
         username: user.nickname || user.memberName || user.loginEmail || "",
@@ -57,20 +55,25 @@ export async function middleware(req: NextRequest) {
         isSubscribed: user.isSubscribed ?? false,
       };
 
-      // Save user in Wix
       await validateAndPostUser(user);
-
-      // Create JWT
       const token = await createJWT(payload);
 
-      // Set JWT cookie
       const res = NextResponse.redirect(new URL("/", req.url));
 
+      // Set JWT cookie
       res.cookies.set("authToken", token, {
         path: "/",
         httpOnly: true,
         maxAge: 86400,
       });
+
+      // Set user info cookie (non-HTTP-only so client can read it)
+      res.cookies.set("userInfo", JSON.stringify(payload), {
+        path: "/",
+        httpOnly: false,
+        maxAge: 86400,
+      });
+
       return res;
     }
   }
@@ -80,12 +83,11 @@ export async function middleware(req: NextRequest) {
   if (token) {
     const decoded = await verifyJWT(token.value);
     if (decoded) {
-      // ✅ valid JWT → continue
       return NextResponse.next();
     } else {
-      // ❌ invalid JWT → clear & redirect
       const res = NextResponse.redirect(LOGIN_URL);
       res.cookies.delete("authToken");
+      res.cookies.delete("userInfo");
       return res;
     }
   }
@@ -96,5 +98,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/:path*"], // all routes
+  matcher: ["/:path*"],
 };
