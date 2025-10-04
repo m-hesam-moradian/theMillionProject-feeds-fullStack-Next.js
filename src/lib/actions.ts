@@ -275,7 +275,6 @@ export const getCurrentUserRole = async () => {
   return user?.role || null;
 };
 
-// Get role of any user by their ID
 export const getUserRole = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
