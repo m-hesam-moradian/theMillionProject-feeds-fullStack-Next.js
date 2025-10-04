@@ -262,7 +262,6 @@ export const addComment = async (postId: number, desc: string) => {
   }
 };
 
-// Get current logged-in user role (already have)
 export const getCurrentUserRole = async () => {
   if (!userId) return null;
 
