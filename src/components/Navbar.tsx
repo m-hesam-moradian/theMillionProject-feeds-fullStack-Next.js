@@ -4,22 +4,21 @@ import Link from "next/link";
 import MobileMenu from "./MobileMenu";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+// interface User {
+//   id: string;
+//   username: string;
+//   email?: string;
+//   avatar?: string;
+//   name?: string;
+// }
 
-interface User {
-  id: string;
-  username: string;
-  email?: string;
-  avatar?: string;
-  name?: string;
-}
-
-interface NavbarProps {
-  user: User | null;
-}
 // import { useSelector } from "react-redux";
 // import { RootState } from "@/store/store";
 
-const Navbar = ({ user }: NavbarProps) => {
+const Navbar = () => {
+  const user = useSelector((state: any) => state.user);
+  // const user = { id: "21", username: "sam" };
   // const user = useSelector((state: RootState) => state.user);
   // console.log("User ID:", user.id);
   // console.log("Username:", user.username);

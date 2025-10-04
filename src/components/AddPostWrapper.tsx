@@ -1,19 +1,12 @@
-import { cookies } from "next/headers";
+// components/AddPostWrapper.tsx
+"use client";
+import { useSelector } from "react-redux";
 import AddPost from "./AddPost";
 
-const AddPostWrapper = async () => {
-  const cookieStore = cookies();
-  const userInfo = cookieStore.get("userInfo");
-
-  if (!userInfo) return null;
-
-  try {
-    const user = JSON.parse(userInfo.value);
-    if (user.role !== "ADMIN") return null;
-    return <AddPost />;
-  } catch {
-    return null;
-  }
+const AddPostWrapper = () => {
+  const user = useSelector((state: any) => state.user);
+  if (user.role !== "ADMIN") return null;
+  return <AddPost />;
 };
 
 export default AddPostWrapper;
