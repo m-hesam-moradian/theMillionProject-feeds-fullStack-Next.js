@@ -42,7 +42,6 @@ async function validateUser(userId: string): Promise<any | null> {
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
 
-  // 1. First-time login with query param
   const queryUserId = url.searchParams.get("userId");
   if (queryUserId && queryUserId !== "no-user-id") {
     const user = await validateUser(queryUserId);
@@ -60,14 +59,12 @@ export async function middleware(req: NextRequest) {
 
       const res = NextResponse.redirect(new URL("/", req.url));
 
-      // Set JWT cookie
       res.cookies.set("authToken", token, {
         path: "/",
         httpOnly: true,
         maxAge: 86400,
       });
 
-      // Set user info cookie (non-HTTP-only so client can read it)
       res.cookies.set("userInfo", JSON.stringify(payload), {
         path: "/",
         httpOnly: false,
@@ -78,7 +75,6 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // 2. Check JWT cookie on next visits
   const token = req.cookies.get("authToken");
   if (token) {
     const decoded = await verifyJWT(token.value);
@@ -92,7 +88,6 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // 3. Otherwise → redirect
   url.href = LOGIN_URL;
   return NextResponse.redirect(url);
 }
