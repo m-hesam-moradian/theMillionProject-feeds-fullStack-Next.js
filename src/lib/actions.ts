@@ -298,7 +298,6 @@ export const toggleUserAdmin = async (targetUserId: string) => {
     throw new Error("Only admins can update roles!");
   }
 
-  // Get target user
   const targetUser = await prisma.user.findUnique({
     where: { id: targetUserId },
     select: { role: true },
