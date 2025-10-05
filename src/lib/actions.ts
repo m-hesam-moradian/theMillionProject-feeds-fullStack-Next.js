@@ -308,55 +308,45 @@ export const toggleUserAdmin = async (targetUserId: string) => {
   return updatedUser;
 };
 
+// lib/actions.ts (or wherever you had addPost)
 export const addPost = async (
   formData: FormData,
   img: string,
   polls?: string[],
   subscriptionOnly?: boolean
 ) => {
-  // const { userId } = auth();
-  if (!userId) return { error: "Unauthorized" };
-
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user || user.role !== "ADMIN") {
-    return { error: "Forbidden: Only admins can post" };
-  }
-
   const desc = formData.get("desc")?.toString() || "";
   const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
 
-  if (!desc.trim() && !img && cleanedPolls.length === 0) {
-    return { error: "Cannot create an empty post!" };
-  }
+  // You’ll need to securely pass userId or token here
+  const userId = "your-authenticated-user-id"; // Replace with actual logic
 
   try {
-    const post = await prisma.post.create({
-      data: {
-        desc,
-        img,
-        userId: user.id,
-        subscriptionOnly: subscriptionOnly || false,
-        poll: cleanedPolls.length
-          ? {
-              create: {
-                options: {
-                  create: cleanedPolls.map((text) => ({ text })),
-                },
-              },
-            }
-          : undefined,
-      },
-    });
+    const response = await fetch(
+      "https://your-wix-site.com/_functions/addPost",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Optionally add auth headers here
+        },
+        body: JSON.stringify({
+          desc,
+          img,
+          polls: cleanedPolls,
+          subscriptionOnly,
+          userId,
+        }),
+      }
+    );
 
-    console.log("Created post:", post);
-    revalidatePath("/");
-    return { post };
-  } catch (err) {
-    console.error("❌ Error creating post:", err);
-    return { error: "Something went wrong while creating the post." };
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("❌ Error sending post to Wix:", error);
+    return { error: "Failed to reach Wix backend." };
   }
 };
-
 export const getPosts = async () => {
   // const { userId } = auth(); // may be null if guest
 
