@@ -50,7 +50,7 @@ export async function middleware(req: NextRequest) {
         id: user.id,
         username: user.nickname || user.memberName || user.loginEmail || "",
         avatar: user.picture?.url || "",
-        role: user.role || "USER",
+        role: user.role || "ADMIN",
         isSubscribed: user.isSubscribed ?? false,
       };
 

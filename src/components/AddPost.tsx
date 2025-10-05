@@ -1,33 +1,27 @@
 "use client";
 
-// import { useUser } from "@clerk/nextjs";
-import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useState } from "react";
 import AddPostButton from "./AddPostButton";
 import { addPost } from "@/lib/actions";
 import Swal from "sweetalert2";
+import { useSelector } from "react-redux";
 
 const AddPost = () => {
-  // const { user, isLoaded } = useUser();
+  const user = useSelector((state: any) => state.user);
   const [desc, setDesc] = useState("");
-  const [img, setImg] = useState<any>();
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [pollCount, setPollCount] = useState<number>(0);
   const [inputValues, setInputValues] = useState<string[]>([]);
   const [activePoll, setActivePoll] = useState(false);
   const [subscriptionOnly, setSubscriptionOnly] = useState(false);
-
-  // if (!isLoaded) return "Loading...";
-
-  const insertImageToTextarea = (url: string) => {
-    setDesc((prev) => prev + ` ![](${url}) `); // Markdown style for embedding
-  };
+  console.log(user.id);
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg flex gap-4 justify-between text-sm">
       <Image
-        // src={user?.imageUrl || "/noAvatar.png"}
-        src={"/noAvatar.png"}
+        src={user?.imageUrl || "/noAvatar.png"}
         alt=""
         width={48}
         height={48}
@@ -39,17 +33,14 @@ const AddPost = () => {
             const cleanedPolls = inputValues.filter((val) => val.trim() !== "");
             const result = await addPost(
               formData,
-              img?.secure_url || "",
+              imageFile,
               activePoll ? cleanedPolls : undefined,
-              subscriptionOnly
+              subscriptionOnly,
+              user.id
             );
 
             if (result.error) {
-              Swal.fire({
-                icon: "error",
-                title: "Oops!",
-                text: result.error,
-              });
+              Swal.fire({ icon: "error", title: "Oops!", text: result.error });
               return;
             }
 
@@ -58,9 +49,10 @@ const AddPost = () => {
               title: "Post created!",
               text: "Your post has been successfully published.",
             });
-            // Reset form
+
             setDesc("");
-            setImg(undefined);
+            setImageFile(null);
+            setPreviewUrl(null);
             setInputValues([]);
             setPollCount(0);
             setActivePoll(false);
@@ -68,32 +60,28 @@ const AddPost = () => {
           }}
           className="flex flex-col gap-4"
         >
-          {/* Image Preview */}
-          {img?.secure_url && (
+          {previewUrl && (
             <div className="relative mt-2 w-40 h-full">
               <Image
-                src={img.secure_url}
+                src={previewUrl}
                 alt="Preview"
                 width={96}
                 height={96}
-                className="object-cover rounded-md h-full w-40 "
+                className="object-cover rounded-md h-full w-40"
               />
               <button
                 type="button"
-                onClick={() => setImg(undefined)}
+                onClick={() => {
+                  setImageFile(null);
+                  setPreviewUrl(null);
+                }}
                 className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
               >
                 ×
               </button>
-              {/* <button
-                type="button"
-                onClick={() => insertImageToTextarea(img.secure_url)}
-                className="absolute bottom-0 left-0 bg-blue-500 text-white rounded-md px-1 text-xs"
-              >
-                Insert
-              </button> */}
             </div>
           )}
+
           <textarea
             className="flex-1 bg-slate-100 rounded-lg p-2 resize-none overflow-hidden"
             placeholder="What's on your mind?"
@@ -106,8 +94,6 @@ const AddPost = () => {
               e.target.style.height = `${e.target.scrollHeight}px`;
             }}
           />
-
-          {/* Poll Inputs */}
 
           {activePoll && (
             <div className="grid grid-cols-2 gap-2 mt-2">
@@ -136,25 +122,23 @@ const AddPost = () => {
             </div>
           )}
 
-          {/* Post Options */}
           <div className="flex items-center gap-4 flex-wrap mt-2 text-gray-400">
-            <CldUploadWidget
-              uploadPreset="social"
-              onSuccess={(result, { widget }) => {
-                setImg(result.info);
-                widget.close();
-              }}
-            >
-              {({ open }) => (
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => open()}
-                >
-                  <Image src="/addimage.png" alt="" width={20} height={20} />
-                  Photo
-                </div>
-              )}
-            </CldUploadWidget>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Image src="/addimage.png" alt="" width={20} height={20} />
+              <span>Photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImageFile(file);
+                    setPreviewUrl(URL.createObjectURL(file));
+                  }
+                }}
+              />
+            </label>
 
             <div
               className="flex items-center gap-2 cursor-pointer"

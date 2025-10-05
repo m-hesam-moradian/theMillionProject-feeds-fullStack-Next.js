@@ -308,42 +308,128 @@ export const toggleUserAdmin = async (targetUserId: string) => {
   return updatedUser;
 };
 
-// lib/actions.ts (or wherever you had addPost)
+// // lib/actions.ts
+// export const addPost = async (
+//   formData: FormData,
+//   imageFile: File | null,
+//   polls?: string[],
+//   subscriptionOnly?: boolean,
+//   userId?: string
+// ) => {
+//   const desc = formData.get("desc")?.toString() || "";
+//   const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
+
+//   if (!userId) return { error: "Unauthorized: Missing user ID" };
+
+//   let base64Image = "";
+//   if (imageFile) {
+//     const buffer = await imageFile.arrayBuffer();
+//     base64Image = `data:${imageFile.type};base64,${Buffer.from(buffer).toString(
+//       "base64"
+//     )}`;
+//   }
+
+//   const payload = {
+//     desc,
+//     img: base64Image,
+//     userId,
+//     subscriptionOnly,
+//     polls: cleanedPolls,
+//   };
+
+//   try {
+//     const response = await fetch(
+//       "https://www.themillionproject.org/_functions/addPost",
+//       {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       }
+//     );
+
+//     const result = await response.json();
+//     return result;
+//   } catch (error) {
+//     console.error("❌ Error sending post to Wix:", error);
+//     return { error: "Failed to reach Wix backend." };
+//   }
+// };
+// lib/actions.ts
 export const addPost = async (
   formData: FormData,
-  img: string,
+  imageFile: File | null,
   polls?: string[],
-  subscriptionOnly?: boolean
+  subscriptionOnly?: boolean,
+  userId?: string
 ) => {
-  const desc = formData.get("desc")?.toString() || "";
-  const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
+  console.log("🔄 Starting addPost...");
 
-  // You’ll need to securely pass userId or token here
-  const userId = "your-authenticated-user-id"; // Replace with actual logic
+  const desc = formData.get("desc")?.toString() || "";
+  console.log("📝 Extracted description:", desc);
+
+  const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
+  console.log("📊 Cleaned poll options:", cleanedPolls);
+
+  if (!userId) {
+    console.warn("🚫 Missing userId");
+    return { error: "Unauthorized: Missing user ID" };
+  }
+  console.log("👤 Using userId:", userId);
+
+  let base64Image = "";
+  if (imageFile) {
+    console.log("🖼️ Image file detected:", imageFile.name, imageFile.type);
+    try {
+      const buffer = await imageFile.arrayBuffer();
+      console.log("📦 Image buffer size:", buffer.byteLength);
+
+      base64Image = `data:${imageFile.type};base64,${Buffer.from(
+        buffer
+      ).toString("base64")}`;
+      console.log("✅ Converted image to base64 (length):", base64Image.length);
+    } catch (err) {
+      console.error("❌ Failed to convert image to base64:", err);
+      return { error: "Image processing failed." };
+    }
+  } else {
+    console.log("📭 No image file provided.");
+  }
+
+  const payload = {
+    desc,
+    img: base64Image,
+    userId,
+    subscriptionOnly,
+    polls: cleanedPolls,
+  };
+  console.log("📤 Final payload:", payload);
 
   try {
+    console.log("🌐 Sending POST request to Wix...");
     const response = await fetch(
-      "https://your-wix-site.com/_functions/addPost",
+      "https://www.themillionproject.org/_functions/addPost",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Optionally add auth headers here
-        },
-        body: JSON.stringify({
-          desc,
-          img,
-          polls: cleanedPolls,
-          subscriptionOnly,
-          userId,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       }
     );
 
-    const result = await response.json();
-    return result;
+    console.log("📬 Response status:", response.status);
+
+    const text = await response.text();
+    console.log("📄 Raw response text:", text);
+
+    try {
+      const result = JSON.parse(text);
+      console.log("✅ Parsed JSON response:", result);
+      return result;
+    } catch (parseErr) {
+      console.error("❌ Failed to parse JSON:", parseErr);
+      return { error: "Wix returned invalid or empty JSON." };
+    }
   } catch (error) {
-    console.error("❌ Error sending post to Wix:", error);
+    console.error("❌ Network or fetch error:", error);
     return { error: "Failed to reach Wix backend." };
   }
 };
