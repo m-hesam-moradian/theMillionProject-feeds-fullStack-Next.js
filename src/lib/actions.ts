@@ -411,22 +411,23 @@ export const addPost = async (
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          desc,
+          img: base64Image,
+          userId,
+          subscriptionOnly,
+          polls: cleanedPolls,
+        }),
       }
     );
 
-    console.log("📬 Response status:", response.status);
-
-    const text = await response.text();
-    console.log("📄 Raw response text:", text);
-
-    try {
-      const result = JSON.parse(text);
-      console.log("✅ Parsed JSON response:", result);
-      return result;
-    } catch (parseErr) {
-      console.error("❌ Failed to parse JSON:", parseErr);
-      return { error: "Wix returned invalid or empty JSON." };
+    const result = await response.json();
+    if (response.ok) {
+      const newPost = result.post;
+      console.log("✅ Post created:", newPost._id, newPost.createdAt);
+      // You can now use newPost._id to link comments/likes later
+    } else {
+      console.error("❌ Post creation failed:", result.error);
     }
   } catch (error) {
     console.error("❌ Network or fetch error:", error);

@@ -88,8 +88,11 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  url.href = LOGIN_URL;
-  return NextResponse.redirect(url);
+  if (!queryUserId && !token) {
+    return NextResponse.redirect(LOGIN_URL);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
