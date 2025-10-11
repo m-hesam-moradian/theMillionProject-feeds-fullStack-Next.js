@@ -355,50 +355,34 @@ export const toggleUserAdmin = async (targetUserId: string) => {
 //   }
 // };
 // lib/actions.ts
+import { v4 as uuidv4 } from "uuid";
 export const addPost = async (
   formData: FormData,
-  imageFile: File | null,
+  desc: string,
+  img: string | null,
   polls?: string[],
   subscriptionOnly?: boolean,
-  userId?: string
+  user?: string
 ) => {
   console.log("🔄 Starting addPost...");
 
-  const desc = formData.get("desc")?.toString() || "";
   console.log("📝 Extracted description:", desc);
 
   const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
   console.log("📊 Cleaned poll options:", cleanedPolls);
 
-  if (!userId) {
-    console.warn("🚫 Missing userId");
-    return { error: "Unauthorized: Missing user ID" };
+  if (!user) {
+    console.warn("🚫 Missing user");
+    return { error: "Unauthorized: Missing user" };
   }
-  console.log("👤 Using userId:", userId);
-
-  let base64Image = "";
-  if (imageFile) {
-    console.log("🖼️ Image file detected:", imageFile.name, imageFile.type);
-    try {
-      const buffer = await imageFile.arrayBuffer();
-      console.log("📦 Image buffer size:", buffer.byteLength);
-
-      base64Image = `data:${imageFile.type};base64,${Buffer.from(
-        buffer
-      ).toString("base64")}`;
-      console.log("✅ Converted image to base64 (length):", base64Image.length);
-    } catch (err) {
-      console.error("❌ Failed to convert image to base64:", err);
-      return { error: "Image processing failed." };
-    }
-  } else {
-    console.log("📭 No image file provided.");
-  }
+  console.log("👤 Using user:", user);
+  const postId = uuidv4();
 
   const payload = {
+    _id: postId,
     desc,
-    img: base64Image,
-    userId,
+    img,
+    user,
     subscriptionOnly,
     polls: cleanedPolls,
   };
@@ -411,13 +395,7 @@ export const addPost = async (
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          desc,
-          img: base64Image,
-          userId,
-          subscriptionOnly,
-          polls: cleanedPolls,
-        }),
+        body: JSON.stringify(payload),
       }
     );
 
@@ -433,6 +411,7 @@ export const addPost = async (
     console.error("❌ Network or fetch error:", error);
     return { error: "Failed to reach Wix backend." };
   }
+  return { success: true };
 };
 export const getPosts = async () => {
   // const { userId } = auth(); // may be null if guest

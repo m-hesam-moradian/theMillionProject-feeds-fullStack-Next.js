@@ -6,22 +6,22 @@ import AddPostButton from "./AddPostButton";
 import { addPost } from "@/lib/actions";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
+import { CldUploadWidget } from "next-cloudinary";
 
 const AddPost = () => {
   const user = useSelector((state: any) => state.user);
   const [desc, setDesc] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [img, setImg] = useState<any>();
   const [pollCount, setPollCount] = useState<number>(0);
   const [inputValues, setInputValues] = useState<string[]>([]);
   const [activePoll, setActivePoll] = useState(false);
   const [subscriptionOnly, setSubscriptionOnly] = useState(false);
-  console.log(user.id);
+  console.log(user);
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg flex gap-4 justify-between text-sm">
       <Image
-        src={user?.imageUrl || "/noAvatar.png"}
+        src={user?.avatar || "/noAvatar.png"}
         alt=""
         width={48}
         height={48}
@@ -33,7 +33,8 @@ const AddPost = () => {
             const cleanedPolls = inputValues.filter((val) => val.trim() !== "");
             const result = await addPost(
               formData,
-              imageFile,
+              desc,
+              img?.secure_url || "",
               activePoll ? cleanedPolls : undefined,
               subscriptionOnly,
               user.id
@@ -51,8 +52,7 @@ const AddPost = () => {
             });
 
             setDesc("");
-            setImageFile(null);
-            setPreviewUrl(null);
+            setImg(null);
             setInputValues([]);
             setPollCount(0);
             setActivePoll(false);
@@ -60,10 +60,10 @@ const AddPost = () => {
           }}
           className="flex flex-col gap-4"
         >
-          {previewUrl && (
+          {img?.secure_url && (
             <div className="relative mt-2 w-40 h-full">
               <Image
-                src={previewUrl}
+                src={img.secure_url}
                 alt="Preview"
                 width={96}
                 height={96}
@@ -71,10 +71,7 @@ const AddPost = () => {
               />
               <button
                 type="button"
-                onClick={() => {
-                  setImageFile(null);
-                  setPreviewUrl(null);
-                }}
+                onClick={() => setImg(undefined)}
                 className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
               >
                 ×
@@ -123,23 +120,23 @@ const AddPost = () => {
           )}
 
           <div className="flex items-center gap-4 flex-wrap mt-2 text-gray-400">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Image src="/addimage.png" alt="" width={20} height={20} />
-              <span>Photo</span>
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setImageFile(file);
-                    setPreviewUrl(URL.createObjectURL(file));
-                  }
-                }}
-              />
-            </label>
-
+            <CldUploadWidget
+              uploadPreset="social"
+              onSuccess={(result, { widget }) => {
+                setImg(result.info);
+                widget.close();
+              }}
+            >
+              {({ open }) => (
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => open()}
+                >
+                  <Image src="/addimage.png" alt="" width={20} height={20} />
+                  Photo
+                </div>
+              )}
+            </CldUploadWidget>
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => setActivePoll((prev) => !prev)}
