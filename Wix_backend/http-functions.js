@@ -2,7 +2,7 @@ import { insert, query, update } from "wix-data";
 import { ok, badRequest, notFound } from "wix-http-functions";
 import wixUsersBackend from "wix-users-backend";
 import wixData from "wix-data";
-import wixMedia from "wix-media-backend";
+import { formatDateDDMMYYYY } from "backend/dateUtils";
 
 export function get_userById(request) {
   const response = {
@@ -125,125 +125,35 @@ export async function post_addUser(request) {
   }
 }
 
-// export async function post_addPost(request) {
-
-//   try {
-//     const body = await request.body.json();
-//     const { desc, img, userId, subscriptionOnly, polls } = body;
-
-//     // Basic validation
-//     if (!userId) return badRequest({ error: "Unauthorized: Missing user ID" });
-
-//     const cleanedPolls = (polls || []).filter(text => text.trim() !== "");
-//     if (!desc.trim() && !img && cleanedPolls.length === 0) {
-//       return badRequest({ error: "Cannot create an empty post!" });
-//     }
-
-//     let wixImageUrl = "";
-//     if (img && img.startsWith("data:image")) {
-//       try {
-//         const base64Data = img.split(",")[1];
-//         const buffer = Buffer.from(base64Data, "base64");
-
-//         const uploadResult = await wixMedia.upload({
-//           fileName: "post-image.jpg",
-//           fileContent: buffer,
-//           mimeType: "image/jpeg", // You can dynamically detect this if needed
-//         });
-
-//         wixImageUrl = uploadResult.fileUrl;
-//       } catch (uploadErr) {
-//         console.error("❌ Image upload failed:", uploadErr);
-//         return badRequest({ error: "Failed to upload image to Wix Media" });
-//       }
-//     }
-
-//     // Insert post
-//     const postData = {
-//       desc,
-//       img: wixImageUrl || undefined,
-//       userId,
-//       subscriptionOnly: subscriptionOnly || false,
-//     };
-
-//     const postResult = await wixData.insert("SocialMedia-Post", postData);
-
-//     // Insert polls if provided
-//     if (cleanedPolls.length > 0) {
-//       const pollItems = cleanedPolls.map(text => ({
-//         text,
-//         postId: postResult._id,
-//       }));
-
-//       await wixData.bulkInsert("SocialMedia-PollOption", pollItems);
-//     }
-
-//     return ok({ post: postResult });
-//   } catch (err) {
-//     console.error("❌ Unexpected error:", err);
-//     return badRequest({ error: "Something went wrong while creating the post." });
-//   }
-// }
-
 export async function post_addPost(request) {
   try {
     const body = await request.body.json();
-    const { desc = "", img, userId, subscriptionOnly = false, polls } = body;
+    const { id, desc, img, userId, subscriptionOnly, polls } = body;
 
     // Basic validation
     if (!userId) return badRequest({ error: "Unauthorized: Missing user ID" });
 
-    const cleanedPolls = (polls || []).filter((text) => text.trim() !== "");
-    if (!desc.trim() && !img && cleanedPolls.length === 0) {
+    if (!desc || !desc.trim()) {
       return badRequest({ error: "Cannot create an empty post!" });
     }
-
-    let wixImageUrl;
-    if (img && img.startsWith("data:image")) {
-      try {
-        const [meta, base64Data] = img.split(",");
-        const mimeType =
-          meta.match(/data:(image\/[^;]+);/)?.[1] || "image/jpeg";
-        const buffer = Buffer.from(base64Data, "base64");
-
-        const uploadResult = await wixMedia.upload({
-          fileName: `post-image.${mimeType.split("/")[1]}`,
-          fileContent: buffer,
-          mimeType,
-        });
-
-        wixImageUrl = uploadResult.fileUrl;
-      } catch (uploadErr) {
-        console.error("❌ Image upload failed:", uploadErr);
-        return badRequest({ error: "Failed to upload image to Wix Media" });
-      }
-    }
-
-    // Generate unique ID and timestamps
-
-    const now = new Date();
-
     const postData = {
-      _id: postId,
+      id,
       desc: desc.trim(),
-      img: wixImageUrl || undefined,
-      user: userId,
+      img,
       userId,
       subscriptionOnly: Boolean(subscriptionOnly),
-      createdAt: now,
-      updatedAt: now,
-      comments: postId, // Ready for multi-reference
-      multireference: polls,
-      likes: postId, // Ready for multi-reference
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // polls,
     };
 
     const postResult = await wixData.insert("SocialMedia-Post", postData);
 
     // Insert polls if provided
-    if (cleanedPolls.length > 0) {
-      const pollItems = cleanedPolls.map((text) => ({
+    if (polls.length > 0) {
+      const pollItems = polls.map((text) => ({
         text,
-        postId,
+        postId: id,
       }));
 
       await wixData.bulkInsert("SocialMedia-PollOption", pollItems);
@@ -254,6 +164,35 @@ export async function post_addPost(request) {
     console.error("❌ Unexpected error:", err);
     return badRequest({
       error: "Something went wrong while creating the post.",
+    });
+  }
+}
+
+export async function get_getPosts(request) {
+  try {
+    const results = await wixData.query("SocialMedia-Post").find();
+
+    return ok({
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: {
+        success: true,
+        posts: results.items,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Failed to fetch posts:", err);
+    return badRequest({
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: {
+        success: false,
+        error: err.message,
+      },
     });
   }
 }

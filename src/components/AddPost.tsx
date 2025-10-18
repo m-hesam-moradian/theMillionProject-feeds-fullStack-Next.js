@@ -32,7 +32,7 @@ const AddPost = () => {
           action={async (formData) => {
             const cleanedPolls = inputValues.filter((val) => val.trim() !== "");
             const result = await addPost(
-              formData,
+              // formData,
               desc,
               img?.secure_url || "",
               activePoll ? cleanedPolls : undefined,

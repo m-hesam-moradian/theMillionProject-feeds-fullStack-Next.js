@@ -23,6 +23,8 @@ type FeedPostType = PostType & {
 };
 
 const Post = ({ post }: { post: FeedPostType }) => {
+  console.log(post);
+
   // const { userId } = auth();
   const userId = "34567890"; // Mocked userId, replace with actual auth logic
 
@@ -35,20 +37,20 @@ const Post = ({ post }: { post: FeedPostType }) => {
       {/* USER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Image
+          {/* <Image
             src={post.user.avatar || "/noAvatar.png"}
             width={40}
             height={40}
             alt=""
             className="w-10 h-10 rounded-full object-cover"
-          />
-          <span className="font-medium">
+          /> */}
+          {/* <span className="font-medium">
             {post.user.name && post.user.surname
               ? `${post.user.name} ${post.user.surname}`
               : post.user.username}
-          </span>
+          </span> */}
         </div>
-        {userId === post.user.id && <PostInfo postId={post.id} />}
+        {/* {userId === post.user.id && <PostInfo postId={post.id} />} */}
       </div>
 
       {/* DESC */}
@@ -73,16 +75,16 @@ const Post = ({ post }: { post: FeedPostType }) => {
 
       {/* INTERACTION */}
       <Suspense fallback="Loading...">
-        <PostInteraction
+        {/* <PostInteraction
           postId={post.id}
-          likes={post.likes.map((like) => like.userId)}
-          commentNumber={post._count.comments}
-        />
+          // likes={post.likes.map((like) => like.userId)}
+          // commentNumber={post._count.comments}
+        /> */}
       </Suspense>
 
       {/* COMMENTS */}
       <Suspense fallback="Loading...">
-        <Comments postId={post.id} />
+        {/* <Comments postId={post.id} /> */}
       </Suspense>
     </div>
   );

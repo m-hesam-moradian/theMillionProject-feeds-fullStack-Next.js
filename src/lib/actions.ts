@@ -357,36 +357,42 @@ export const toggleUserAdmin = async (targetUserId: string) => {
 // lib/actions.ts
 import { v4 as uuidv4 } from "uuid";
 export const addPost = async (
-  formData: FormData,
   desc: string,
   img: string | null,
   polls?: string[],
   subscriptionOnly?: boolean,
   user?: string
 ) => {
-  console.log("🔄 Starting addPost...");
-
-  console.log("📝 Extracted description:", desc);
-
   const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
-  console.log("📊 Cleaned poll options:", cleanedPolls);
 
-  if (!user) {
+  // Validate required fields
+  if (!user || !user.trim()) {
     console.warn("🚫 Missing user");
     return { error: "Unauthorized: Missing user" };
   }
-  console.log("👤 Using user:", user);
-  const postId = uuidv4();
 
+  if (!desc || !desc.trim()) {
+    console.warn("🚫 Missing description");
+    return { error: "Cannot create an empty post" };
+  }
+
+  const postId = uuidv4();
+  if (!postId) {
+    console.warn("🚫 Failed to generate post ID");
+    return { error: "Post ID is missing or invalid" };
+  }
+
+  console.log("👤 Using user:", user);
   const payload = {
-    _id: postId,
-    desc,
+    id: postId,
+    desc: desc.trim(),
     img,
-    user,
-    subscriptionOnly,
+    userId: { _id: 1 },
+    subscript_idionOnly: subscriptionOnly ?? false,
     polls: cleanedPolls,
   };
-  console.log("📤 Final payload:", payload);
+
+  console.log("📤 Final payload:", JSON.stringify(payload));
 
   try {
     console.log("🌐 Sending POST request to Wix...");
@@ -399,57 +405,52 @@ export const addPost = async (
       }
     );
 
-    const result = await response.json();
     if (response.ok) {
-      const newPost = result.post;
-      console.log("✅ Post created:", newPost._id, newPost.createdAt);
-      // You can now use newPost._id to link comments/likes later
+      // console.log("✅ Post created:", response.post);
     } else {
-      console.error("❌ Post creation failed:", result.error);
+      console.error("❌ Post creation failed:", response.status);
     }
   } catch (error) {
     console.error("❌ Network or fetch error:", error);
     return { error: "Failed to reach Wix backend." };
   }
+
   return { success: true };
 };
+type Viewer = {
+  id: string;
+  isSubscribed: boolean;
+};
+
+import { getUserFromJWT } from "@/lib/getUserFromJWT";
 export const getPosts = async () => {
-  // const { userId } = auth(); // may be null if guest
+  try {
+    const user = await getUserFromJWT();
 
-  // fetch all posts with related data
-  const posts = await prisma.post.findMany({
-    include: {
-      user: true,
-      likes: { select: { userId: true } },
-      _count: { select: { comments: true } },
-      poll: {
-        include: {
-          options: {
-            include: {
-              votes: { select: { userId: true } }, // for poll votes
-            },
-          },
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/getPosts"
+    );
+    const result = await response.json();
 
-  // get viewer info if logged in
-  const viewer = userId
-    ? await prisma.user.findUnique({ where: { id: userId } })
-    : null;
+    if (!response.ok || !result.success) {
+      console.error("❌ Failed to fetch posts:", result.error);
+      return [];
+    }
 
-  // filter subscription-only posts
-  const filteredPosts = posts.filter((post) => {
-    if (!post.subscriptionOnly) return true; // public post
-    if (!viewer?.isSubscribed) return false; // non-subscribers cannot see
-    return true; // subscriber sees post
-  });
+    const posts = result.posts || [];
 
-  return filteredPosts;
+    // Filter subscription-only posts
+    const filteredPosts = posts.filter((post: any) => {
+      if (!post.subscriptionOnly) return true; // Public post
+      if (!user.isSubscribed) return false; // Non-subscribers can't see
+      return true; // Subscriber sees all
+    });
+
+    return filteredPosts;
+  } catch (err) {
+    console.error("❌ Network error while fetching posts:", err);
+    return [];
+  }
 };
 
 export const voteOnPoll = async (pollId: number, pollOptionId: number) => {

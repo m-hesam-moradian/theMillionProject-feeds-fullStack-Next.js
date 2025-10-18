@@ -10,8 +10,8 @@ import HydrateUser from "./HydrateUser"; // ✅ import this
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Lama Dev Social Media App",
-  description: "Social media app built with Next.js",
+  title: "TheMillionProject Social Media",
+  description: "Social media app",
 };
 
 //backend JWT auth usage
