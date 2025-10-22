@@ -179,7 +179,6 @@ export async function post_addPost(request) {
     const body = await request.body.json();
     const { id, desc, img, userId, subscriptionOnly, polls } = body;
 
-    // Basic validation
     if (!userId) {
       return badRequest({ error: "Unauthorized: Missing user ID" });
     }
@@ -188,10 +187,9 @@ export async function post_addPost(request) {
       return badRequest({ error: "Cannot create an empty post!" });
     }
 
-    // 🔍 Find the user by custom `id` field and get Wix `_id`
     const userQuery = await wixData
       .query("SocialMedia-User")
-      .eq("id", userId) // ← this is your custom ID field
+      .eq("id", userId)
       .limit(1)
       .find();
 
@@ -202,22 +200,20 @@ export async function post_addPost(request) {
     const wixUserId = userQuery.items[0]._id;
 
     const postData = {
-      id,
       desc: desc.trim(),
       img,
-      userId: { _id: wixUserId }, // ← use Wix _id here
-      subscriptionOnly: Boolean(subscriptionOnly) || false,
+      userId: { _id: wixUserId },
+      subscriptionOnly: subscriptionOnly,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     const postResult = await wixData.insert("SocialMedia-Post", postData);
 
-    // Insert polls if provided
     if (Array.isArray(polls) && polls.length > 0) {
       const pollItems = polls.map((text) => ({
         text,
-        postId: id,
+        // postId: postResult(after creating post its making automaticly a _id and i need to add this id to post id part ),
       }));
 
       await wixData.bulkInsert("SocialMedia-PollOption", pollItems);

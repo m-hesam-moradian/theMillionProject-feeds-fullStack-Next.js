@@ -376,19 +376,12 @@ export const addPost = async (
     return { error: "Cannot create an empty post" };
   }
 
-  const postId = uuidv4();
-  if (!postId) {
-    console.warn("🚫 Failed to generate post ID");
-    return { error: "Post ID is missing or invalid" };
-  }
-
   console.log("👤 Using user:", user);
   const payload = {
-    id: postId,
     desc: desc.trim(),
     img,
     userId: user,
-    subscript_idionOnly: subscriptionOnly ?? false,
+    subscriptionOnly: subscriptionOnly ?? false,
     polls: cleanedPolls,
   };
 
