@@ -205,8 +205,8 @@ export async function post_addPost(request) {
       id,
       desc: desc.trim(),
       img,
-      userId: wixUserId, // ← use Wix _id here
-      subscriptionOnly: Boolean(subscriptionOnly),
+      userId: { _id: wixUserId }, // ← use Wix _id here
+      subscriptionOnly: Boolean(subscriptionOnly) || false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -231,6 +231,25 @@ export async function post_addPost(request) {
     });
   }
 }
+
+// fetch("https://www.themillionproject.org/_functions/addPost", {
+//   method: "POST",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+//   body: JSON.stringify({
+//     id: "test-post-001",
+//     desc: "This is a fake post for testing",
+//     img: "https://example.com/image.jpg",
+//     userId: "d13996ae-c828-4891-bb6a-d4307004cbb6", // must match an existing user in your Wix collection
+//     subscriptionOnly: false,
+//     polls: ["Option A", "Option B"],
+//   }),
+// })
+//   .then((res) => res.json())
+//   .then((data) => console.log("✅ Response:", data))
+//   .catch((err) => console.error("❌ Error:", err));
+
 export async function get_getPosts(request) {
   try {
     const results = await wixData.query("SocialMedia-Post").find();

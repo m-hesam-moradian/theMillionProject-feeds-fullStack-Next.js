@@ -387,7 +387,7 @@ export const addPost = async (
     id: postId,
     desc: desc.trim(),
     img,
-    userId: { _id: 1 },
+    userId: user,
     subscript_idionOnly: subscriptionOnly ?? false,
     polls: cleanedPolls,
   };
@@ -405,11 +405,11 @@ export const addPost = async (
       }
     );
 
-    if (response.ok) {
-      // console.log("✅ Post created:", response.post);
-    } else {
-      console.error("❌ Post creation failed:", response.status);
-    }
+    // if (response.ok) {
+    //   // console.log("✅ Post created:", response.post);
+    // } else {
+    //   console.error("❌ Post creation failed:", response.status);
+    // }
   } catch (error) {
     console.error("❌ Network or fetch error:", error);
     return { error: "Failed to reach Wix backend." };
