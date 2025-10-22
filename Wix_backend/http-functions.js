@@ -173,8 +173,6 @@ export async function post_addUser(request) {
 //     });
 //   }
 // }
-import { ok, badRequest } from "wix-http-functions";
-import wixData from "wix-data";
 
 export async function post_addPost(request) {
   try {
