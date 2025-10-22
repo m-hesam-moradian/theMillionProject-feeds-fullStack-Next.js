@@ -16,7 +16,6 @@ const AddPost = () => {
   const [inputValues, setInputValues] = useState<string[]>([]);
   const [activePoll, setActivePoll] = useState(false);
   const [subscriptionOnly, setSubscriptionOnly] = useState(false);
-  console.log(user);
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg flex gap-4 justify-between text-sm">

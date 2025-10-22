@@ -44,7 +44,9 @@ export async function middleware(req: NextRequest) {
 
   const queryUserId = url.searchParams.get("userId");
   if (queryUserId && queryUserId !== "no-user-id") {
+    console.log(queryUserId);
     const user = await validateUser(queryUserId);
+
     if (user) {
       const payload = {
         id: user.id,

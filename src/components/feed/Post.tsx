@@ -23,8 +23,6 @@ type FeedPostType = PostType & {
 };
 
 const Post = ({ post }: { post: FeedPostType }) => {
-  console.log(post);
-
   // const { userId } = auth();
   const userId = "34567890"; // Mocked userId, replace with actual auth logic
 

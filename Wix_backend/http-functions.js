@@ -2,7 +2,6 @@ import { insert, query, update } from "wix-data";
 import { ok, badRequest, notFound } from "wix-http-functions";
 import wixUsersBackend from "wix-users-backend";
 import wixData from "wix-data";
-import { formatDateDDMMYYYY } from "backend/dateUtils";
 
 export function get_userById(request) {
   const response = {
@@ -49,7 +48,7 @@ export async function post_addUser(request) {
     console.log("📥 Incoming payload:", body);
 
     // Required fields
-    const requiredFields = ["id", "username"];
+    const requiredFields = ["username"];
     const missingFields = requiredFields.filter((field) => !body[field]);
 
     if (missingFields.length > 0) {
@@ -124,6 +123,58 @@ export async function post_addUser(request) {
     );
   }
 }
+// backend/http-functions.jsw
+// import { ok, badRequest } from "wix-http-functions";
+// import wixData from "wix-data";
+// import { getUserIdByUsername } from "backend/utils/getUserIdByUsername";
+
+// import { getUserIdByUsername } from "backend/utils/getUserIdByUsername";
+// export async function post_addPost(request) {
+//   try {
+//     const body = await request.body.json();
+//     const { id, desc, img, userId, subscriptionOnly, polls } = body;
+
+//     // Basic validation
+//     if (!userId) return badRequest({ error: "Unauthorized: Missing user ID" });
+
+//     if (!desc || !desc.trim()) {
+//       return badRequest({ error: "Cannot create an empty post!" });
+//     }
+//     const userID = await getUserIdByUsername(userId);
+
+//     const postData = {
+//       id,
+//       desc: desc.trim(),
+//       img,
+//       userId: userID,
+//       subscriptionOnly: Boolean(subscriptionOnly),
+//       createdAt: new Date(),
+//       updatedAt: new Date(),
+//       // polls,
+//     };
+
+//     const postResult = await wixData.insert("SocialMedia-Post", postData);
+
+//     // Insert polls if provided
+//     if (polls.length > 0) {
+//       const pollItems = polls.map((text) => ({
+//         text,
+//         postId: id,
+//       }));
+
+//       await wixData.bulkInsert("SocialMedia-PollOption", pollItems);
+//     }
+
+//     return ok({ post: postResult });
+//   } catch (err) {
+//     console.error("❌ Unexpected error:", err);
+//     return badRequest({
+//       error: "Something went wrong while creating the post.",
+//     });
+//   }
+// }
+import { ok, badRequest } from "wix-http-functions";
+import wixData from "wix-data";
 
 export async function post_addPost(request) {
   try {
@@ -131,26 +182,41 @@ export async function post_addPost(request) {
     const { id, desc, img, userId, subscriptionOnly, polls } = body;
 
     // Basic validation
-    if (!userId) return badRequest({ error: "Unauthorized: Missing user ID" });
+    if (!userId) {
+      return badRequest({ error: "Unauthorized: Missing user ID" });
+    }
 
     if (!desc || !desc.trim()) {
       return badRequest({ error: "Cannot create an empty post!" });
     }
+
+    // 🔍 Find the user by custom `id` field and get Wix `_id`
+    const userQuery = await wixData
+      .query("SocialMedia-User")
+      .eq("id", userId) // ← this is your custom ID field
+      .limit(1)
+      .find();
+
+    if (userQuery.items.length === 0) {
+      return badRequest({ error: "User not found with provided ID" });
+    }
+
+    const wixUserId = userQuery.items[0]._id;
+
     const postData = {
       id,
       desc: desc.trim(),
       img,
-      userId,
+      userId: wixUserId, // ← use Wix _id here
       subscriptionOnly: Boolean(subscriptionOnly),
       createdAt: new Date(),
       updatedAt: new Date(),
-      // polls,
     };
 
     const postResult = await wixData.insert("SocialMedia-Post", postData);
 
     // Insert polls if provided
-    if (polls.length > 0) {
+    if (Array.isArray(polls) && polls.length > 0) {
       const pollItems = polls.map((text) => ({
         text,
         postId: id,
@@ -167,7 +233,6 @@ export async function post_addPost(request) {
     });
   }
 }
-
 export async function get_getPosts(request) {
   try {
     const results = await wixData.query("SocialMedia-Post").find();
@@ -196,3 +261,31 @@ export async function get_getPosts(request) {
     });
   }
 }
+// export async function get_getUser(request) {
+//   try {
+//     const results = await wixData.query("SocialMedia-User").find();
+
+//     return ok({
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Access-Control-Allow-Origin": "*",
+//       },
+//       body: {
+//         success: true,
+//         posts: results.items,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("❌ Failed to fetch posts:", err);
+//     return badRequest({
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Access-Control-Allow-Origin": "*",
+//       },
+//       body: {
+//         success: false,
+//         error: err.message,
+//       },
+//     });
+//   }
+// }
