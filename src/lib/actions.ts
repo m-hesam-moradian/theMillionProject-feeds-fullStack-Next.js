@@ -355,7 +355,7 @@ export const toggleUserAdmin = async (targetUserId: string) => {
 //   }
 // };
 // lib/actions.ts
-import { v4 as uuidv4 } from "uuid";
+
 export const addPost = async (
   desc: string,
   img: string | null,
@@ -363,7 +363,7 @@ export const addPost = async (
   subscriptionOnly?: boolean,
   user?: string
 ) => {
-  const cleanedPolls = polls?.filter((text) => text.trim() !== "") || [];
+  console.log(polls);
 
   // Validate required fields
   if (!user || !user.trim()) {
@@ -377,12 +377,23 @@ export const addPost = async (
   }
 
   console.log("👤 Using user:", user);
+
+  // Transform polls array into desired object format
+  let formattedPolls: { description: string; voters: string[] }[] | undefined =
+    undefined;
+  if (polls && polls.length > 0) {
+    formattedPolls = polls.map((poll) => ({
+      description: poll,
+      voters: [],
+    }));
+  }
+
   const payload = {
     desc: desc.trim(),
     img,
     userId: user,
     subscriptionOnly: subscriptionOnly ?? false,
-    polls: cleanedPolls,
+    polls: formattedPolls,
   };
 
   console.log("📤 Final payload:", JSON.stringify(payload));
@@ -409,10 +420,6 @@ export const addPost = async (
   }
 
   return { success: true };
-};
-type Viewer = {
-  id: string;
-  isSubscribed: boolean;
 };
 
 import { getUserFromJWT } from "@/lib/getUserFromJWT";
