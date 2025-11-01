@@ -206,36 +206,43 @@ export const updateProfile = async (
   }
 };
 
-export const switchLike = async (postId: number) => {
-  if (!userId) throw new Error("User is not authenticated!");
+
+
+
+export const switchLike = async (postId: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id) {
+    return { error: "Unauthorized: Missing user ID" };
+  }
+
+  const payload = {
+    postId,
+    userId: user.id,
+  };
 
   try {
-    const existingLike = await prisma.like.findFirst({
-      where: {
-        postId,
-        userId,
-      },
-    });
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/switchLike",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
 
-    if (existingLike) {
-      await prisma.like.delete({
-        where: {
-          id: existingLike.id,
-        },
-      });
-    } else {
-      await prisma.like.create({
-        data: {
-          postId,
-          userId,
-        },
-      });
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to toggle like" };
     }
-  } catch (err) {
-    console.log(err);
-    throw new Error("Something went wrong");
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: "Network error while toggling like" };
   }
 };
+
 
 export const addComment = async (postId: number, desc: string) => {
   if (!userId) throw new Error("User is not authenticated!");

@@ -388,3 +388,61 @@ export async function post_deletePostByAdmin(request) {
   }
 }
 
+
+export async function post_switchLike(request) {
+  try {
+    const body = await request.body.json();
+    const { postId, userId } = body;
+
+    if (!postId || !userId) {
+      return badRequest({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Missing postId or userId" },
+      });
+    }
+
+    const postResult = await wixData
+      .query("SocialMedia-Post")
+      .eq("_id", postId)
+      .limit(1)
+      .find();
+
+    if (postResult.items.length === 0) {
+      return notFound({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Post not found" },
+      });
+    }
+
+    const post = postResult.items[0];
+    const currentLikes = Array.isArray(post.Like) ? post.Like : [];
+
+    let updatedLikes;
+    if (currentLikes.includes(userId)) {
+      // Unlike
+      updatedLikes = currentLikes.filter((id) => id !== userId);
+    } else {
+      // Like
+      updatedLikes = [...currentLikes, userId];
+    }
+
+    const updatedPost = {
+      ...post,
+      Like: updatedLikes,
+      updatedAt: new Date(),
+    };
+
+    const updateResult = await wixData.update("SocialMedia-Post", updatedPost);
+
+    return ok({
+      headers: { "Content-Type": "application/json" },
+      body: { success: true, message: "Like toggled", post: updateResult },
+    });
+  } catch (err) {
+    console.error("❌ Like toggle error:", err);
+    return badRequest({
+      headers: { "Content-Type": "application/json" },
+      body: { success: false, error: err.message },
+    });
+  }
+}

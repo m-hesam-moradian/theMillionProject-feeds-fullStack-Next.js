@@ -79,7 +79,7 @@ const Post = ({ post }: { post: any }) => {
 
       {/* COMMENTS */}
       <Suspense fallback="Loading...">
-        {/* <Comments postId={post.id} /> */}
+        {/* <Comments postId={post._id} /> */}
       </Suspense>
     </div>
   );
