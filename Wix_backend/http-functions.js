@@ -41,7 +41,6 @@ export function get_userById(request) {
     });
 }
 // https://www.themillionproject.org/_functions/userById?userId=d13996ae-c828-4891-bb6a-d4307004cbb6
-
 export async function post_addUser(request) {
   try {
     const body = await request.body.json();
@@ -123,61 +122,10 @@ export async function post_addUser(request) {
     );
   }
 }
-// backend/http-functions.jsw
-// import { ok, badRequest } from "wix-http-functions";
-// import wixData from "wix-data";
-// import { getUserIdByUsername } from "backend/utils/getUserIdByUsername";
-
-// import { getUserIdByUsername } from "backend/utils/getUserIdByUsername";
-// export async function post_addPost(request) {
-//   try {
-//     const body = await request.body.json();
-//     const { id, desc, img, userId, subscriptionOnly, polls } = body;
-
-//     // Basic validation
-//     if (!userId) return badRequest({ error: "Unauthorized: Missing user ID" });
-
-//     if (!desc || !desc.trim()) {
-//       return badRequest({ error: "Cannot create an empty post!" });
-//     }
-//     const userID = await getUserIdByUsername(userId);
-
-//     const postData = {
-//       id,
-//       desc: desc.trim(),
-//       img,
-//       userId: userID,
-//       subscriptionOnly: Boolean(subscriptionOnly),
-//       createdAt: new Date(),
-//       updatedAt: new Date(),
-//       // polls,
-//     };
-
-//     const postResult = await wixData.insert("SocialMedia-Post", postData);
-
-//     // Insert polls if provided
-//     if (polls.length > 0) {
-//       const pollItems = polls.map((text) => ({
-//         text,
-//         postId: id,
-//       }));
-
-//       await wixData.bulkInsert("SocialMedia-PollOption", pollItems);
-//     }
-
-//     return ok({ post: postResult });
-//   } catch (err) {
-//     console.error("❌ Unexpected error:", err);
-//     return badRequest({
-//       error: "Something went wrong while creating the post.",
-//     });
-//   }
-// }
-
 export async function post_addPost(request) {
   try {
     const body = await request.body.json();
-    const { id, desc, img, userId, subscriptionOnly, polls } = body;
+    const {  desc, img, userId, subscriptionOnly, polls } = body;
 
     // Basic validation
     if (!userId) {
@@ -202,7 +150,6 @@ export async function post_addPost(request) {
     const wixUserId = userQuery.items[0]._id;
 
     const postData = {
-      id,
       desc: desc.trim(),
       img,
       userId: { _id: wixUserId },
@@ -224,28 +171,35 @@ export async function post_addPost(request) {
     });
   }
 }
-
-// fetch("https://www.themillionproject.org/_functions/addPost", {
-//   method: "POST",
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-//   body: JSON.stringify({
-//     id: "test-post-001",
-//     desc: "This is a fake post for testing",
-//     img: "https://example.com/image.jpg",
-//     userId: "d13996ae-c828-4891-bb6a-d4307004cbb6", // must match an existing user in your Wix collection
-//     subscriptionOnly: false,
-//     polls: ["Option A", "Option B"],
-//   }),
-// })
-//   .then((res) => res.json())
-//   .then((data) => console.log("✅ Response:", data))
-//   .catch((err) => console.error("❌ Error:", err));
-
 export async function get_getPosts(request) {
   try {
-    const results = await wixData.query("SocialMedia-Post").find();
+    const postResults = await wixData.query("SocialMedia-Post").find();
+    const posts = postResults.items;
+
+    // Enrich each post with userInfo
+    const enrichedPosts = await Promise.all(
+      posts.map(async (post) => {
+        const userId = post.userId;
+        let userInfo = null;
+
+        if (userId) {
+          const userResult = await wixData
+            .query("SocialMedia-User")
+            .eq("_id", userId)
+            .limit(1)
+            .find();
+
+          if (userResult.items.length > 0) {
+            userInfo = userResult.items[0];
+          }
+        }
+
+        return {
+          ...post,
+          userInfo, // ← embedded user data
+        };
+      })
+    );
 
     return ok({
       headers: {
@@ -254,7 +208,7 @@ export async function get_getPosts(request) {
       },
       body: {
         success: true,
-        posts: results.items,
+        posts: enrichedPosts, // ← single array of enriched post objects
       },
     });
   } catch (err) {
@@ -271,31 +225,119 @@ export async function get_getPosts(request) {
     });
   }
 }
-// export async function get_getUser(request) {
-//   try {
-//     const results = await wixData.query("SocialMedia-User").find();
+export async function post_voteOnPoll(request) {
+  try {
+    const body = await request.body.json();
+    const { postId, userId, pollIndex } = body;
 
-//     return ok({
-//       headers: {
-//         "Content-Type": "application/json",
-//         "Access-Control-Allow-Origin": "*",
-//       },
-//       body: {
-//         success: true,
-//         posts: results.items,
-//       },
-//     });
-//   } catch (err) {
-//     console.error("❌ Failed to fetch posts:", err);
-//     return badRequest({
-//       headers: {
-//         "Content-Type": "application/json",
-//         "Access-Control-Allow-Origin": "*",
-//       },
-//       body: {
-//         success: false,
-//         error: err.message,
-//       },
-//     });
-//   }
-// }
+    // Validate input
+    if (!postId || !userId || pollIndex === undefined) {
+      return badRequest({
+        headers: { "Content-Type": "application/json" },
+        body: {
+          success: false,
+          error: "Missing required fields: postId, userId, or pollIndex",
+        },
+      });
+    }
+
+    // Fetch the post
+    const postResult = await wixData
+      .query("SocialMedia-Post")
+      .eq("_id", postId)
+      .limit(1)
+      .find();
+
+    if (postResult.items.length === 0) {
+      return notFound({
+        headers: { "Content-Type": "application/json" },
+        body: {
+          success: false,
+          error: `Post with ID ${postId} not found`,
+        },
+      });
+    }
+
+    const post = postResult.items[0];
+
+    // Validate pollIndex
+    if (
+      !Array.isArray(post.polls) ||
+      pollIndex < 0 ||
+      pollIndex >= post.polls.length
+    ) {
+      return badRequest({
+        headers: { "Content-Type": "application/json" },
+        body: {
+          success: false,
+          error: `Invalid pollIndex: ${pollIndex}`,
+        },
+      });
+    }
+
+    // Check if user already voted
+    let alreadyVotedIndex = -1;
+    post.polls.forEach((option, index) => {
+      if (
+        Array.isArray(option.voters) &&
+        option.voters.includes(userId)
+      ) {
+        alreadyVotedIndex = index;
+      }
+    });
+
+    // If user already voted on the same option, do nothing
+    if (alreadyVotedIndex === pollIndex) {
+      return ok({
+        headers: { "Content-Type": "application/json" },
+        body: {
+          success: true,
+          message: "Already voted on this option",
+          post,
+        },
+      });
+    }
+
+    // Remove userId from previous vote if exists
+    if (alreadyVotedIndex !== -1) {
+      post.polls[alreadyVotedIndex].voters = post.polls[alreadyVotedIndex].voters.filter(
+        (id) => id !== userId
+      );
+    }
+
+    // Add userId to new poll option
+    const targetOption = post.polls[pollIndex];
+    targetOption.voters = Array.isArray(targetOption.voters)
+      ? [...targetOption.voters, userId]
+      : [userId];
+
+    // Update the post
+    const updatedPost = {
+      ...post,
+      polls: post.polls,
+      updatedAt: new Date(),
+    };
+
+    const updateResult = await wixData.update("SocialMedia-Post", updatedPost);
+
+    return ok({
+      headers: { "Content-Type": "application/json" },
+      body: {
+        success: true,
+        message: "Vote recorded",
+        post: updateResult,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Vote error:", err);
+    return badRequest({
+      headers: { "Content-Type": "application/json" },
+      body: {
+        success: false,
+        error: err.message,
+      },
+    });
+  }
+}
+
+

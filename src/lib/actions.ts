@@ -1,7 +1,7 @@
 "use server";
 
 // import { auth } from "@clerk/nextjs/server";
-import prisma from "./client";
+
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { kMaxLength } from "buffer";
@@ -453,65 +453,48 @@ export const getPosts = async () => {
   }
 };
 
-export const voteOnPoll = async (pollId: number, pollOptionId: number) => {
-  // const { userId } = auth();
 
-  if (!userId) return { error: "User is not authenticated!" };
-
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user?.isSubscribed) {
-    return { error: "Only subscribed users can vote on polls!" };
-  }
-
-  const option = await prisma.pollOption.findUnique({
-    where: { id: pollOptionId },
-  });
-
-  if (!option || option.pollId !== pollId) {
-    return { error: "Invalid poll option for this poll." };
-  }
-
+export const voteOnPoll = async (
+  postId: string,
+  pollIndex: number
+): Promise<{ success?: boolean; error?: string }> => {
   try {
-    const existingVote = await prisma.pollVote.findUnique({
-      where: {
-        userId_pollId: {
-          userId,
-          pollId,
-        },
-      },
-    });
+    const user = await getUserFromJWT();
 
-    let vote;
-
-    if (!existingVote) {
-      vote = await prisma.pollVote.create({
-        data: {
-          userId,
-          pollId,
-          pollOptionId,
-        },
-      });
-    } else if (existingVote.pollOptionId !== pollOptionId) {
-      vote = await prisma.pollVote.update({
-        where: {
-          userId_pollId: {
-            userId,
-            pollId,
-          },
-        },
-        data: {
-          pollOptionId,
-        },
-      });
-    } else {
-      vote = existingVote;
+    if (!user?.id) {
+      console.warn("🚫 Missing user ID from JWT");
+      return { error: "Unauthorized: Missing user ID" };
     }
 
-    revalidatePath("/");
-    return { vote };
-  } catch (err) {
-    console.error("❌ Error while voting:", err);
-    return { error: "Something went wrong while voting." };
+    const payload = {
+      postId,
+      userId: user.id,
+      pollIndex,
+    };
+
+    console.log("📤 Sending vote payload:", payload);
+
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/voteOnPoll",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      console.error("❌ Vote failed:", result.error);
+      return { error: result.error || "Vote failed" };
+    }
+
+    console.log("✅ Vote recorded:", result);
+    return { success: true };
+  } catch (error: any) {
+    console.error("❌ Network or fetch error:", error.message);
+    return { error: "Failed to reach Wix backend." };
   }
 };
 

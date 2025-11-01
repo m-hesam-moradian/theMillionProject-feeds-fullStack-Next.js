@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Comments from "./Comments";
-import { Post as PostType, User } from "@prisma/client";
+// import { Post as PostType, User } from "@prisma/client";
 import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
@@ -8,47 +8,35 @@ import PostInfo from "./PostInfo";
 import { voteOnPoll } from "@/lib/actions";
 import PollBlock from "./PollBlock"; // adjust path if needed
 
-type FeedPostType = PostType & {
-  user: User;
-  likes: { userId: string }[]; // ✅ array, not tuple
-  _count: { comments: number };
-  poll: {
-    id: number;
-    options: {
-      id: number;
-      text: string;
-      votes: { userId: string }[];
-    }[];
-  } | null; // ✅ Prisma returns null if no poll
-};
 
-const Post = ({ post }: { post: FeedPostType }) => {
-  // const { userId } = auth();
-  const userId = "34567890"; // Mocked userId, replace with actual auth logic
 
-  const pollOptions = Array.isArray(post.poll?.options)
-    ? post.poll.options
-    : [];
+const Post = ({ post }: { post: any }) => {
 
+ const pollOptions = Array.isArray(post.polls)
+  ? post.polls
+  : [];
+
+  // console.log(pollOptions);
+  
   return (
     <div className="flex bg-white p-4 rounded-lg shadow-md flex-col gap-4">
       {/* USER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {/* <Image
-            src={post.user.avatar || "/noAvatar.png"}
+          <Image
+            src={post.userInfo.avatar || "/noAvatar.png"}
             width={40}
             height={40}
             alt=""
             className="w-10 h-10 rounded-full object-cover"
-          /> */}
-          {/* <span className="font-medium">
-            {post.user.name && post.user.surname
-              ? `${post.user.name} ${post.user.surname}`
-              : post.user.username}
-          </span> */}
+          />
+          <span className="font-medium">
+            {post.userInfo.name && post.userInfo.surname
+              ? `${post.userInfo.name} ${post.userInfo.surname}`
+              : post.userInfo.username}
+          </span>
         </div>
-        {/* {userId === post.user.id && <PostInfo postId={post.id} />} */}
+        {/* {userId === post.userInfo.id && <PostInfo postId={post.id} />} */}
       </div>
 
       {/* DESC */}
@@ -68,17 +56,18 @@ const Post = ({ post }: { post: FeedPostType }) => {
 
       {/* POLL OPTIONS */}
       {pollOptions.length > 0 && (
-        <PollBlock pollId={post.poll!.id} options={pollOptions} />
+      <PollBlock postId={post._id} options={pollOptions} />
       )}
 
       {/* INTERACTION */}
-      <Suspense fallback="Loading...">
-        {/* <PostInteraction
-          postId={post.id}
-          // likes={post.likes.map((like) => like.userId)}
-          // commentNumber={post._count.comments}
-        /> */}
-      </Suspense>
+      {/* <Suspense fallback="Loading...">
+        <PostInteraction
+          postId={post._id}
+          likes={post.like.map((like) => like.userId)}
+          commentNumber={post._count.comments}
+          userInfo={post.userInfo}
+        />
+      </Suspense> */}
 
       {/* COMMENTS */}
       <Suspense fallback="Loading...">

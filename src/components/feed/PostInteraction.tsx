@@ -9,18 +9,23 @@ const PostInteraction = ({
   postId,
   likes,
   commentNumber,
+  userInfo,
 }: {
   postId: number;
   likes: string[];
   commentNumber: number;
+  userInfo: {
+    _id: string;
+    name: string;
+  };
 }) => {
   // const { isLoaded, userId } = useAuth();
   const isLoaded = true;
-  const userId = "34567890"; // Mocked userId, replace with actual auth logic
+
 
   const [likeState, setLikeState] = useState({
     likeCount: likes.length,
-    isLiked: userId ? likes.includes(userId) : false,
+    isLiked: userInfo._id ? likes.includes(userInfo._id) : false,
   });
 
   const [optimisticLike, switchOptimisticLike] = useOptimistic(
