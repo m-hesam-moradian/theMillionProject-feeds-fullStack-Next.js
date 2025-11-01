@@ -387,8 +387,6 @@ export async function post_deletePostByAdmin(request) {
     });
   }
 }
-
-
 export async function post_switchLike(request) {
   try {
     const body = await request.body.json();
@@ -446,3 +444,4 @@ export async function post_switchLike(request) {
     });
   }
 }
+
