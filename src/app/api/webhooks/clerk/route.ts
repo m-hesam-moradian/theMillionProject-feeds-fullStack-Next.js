@@ -1,7 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
-import prisma from "@/lib/client";
+// import prisma from "@/lib/client";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
@@ -57,39 +57,39 @@ export async function POST(req: Request) {
   // console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
   // console.log('Webhook body:', body)
 
-  if (eventType === "user.created") {
-    try {
-      await prisma.user.create({
-        data: {
-          id: evt.data.id,
-          username: JSON.parse(body).data.username,
-          avatar: JSON.parse(body).data.image_url || "/noAvatar.png",
-          cover: "/noCover.png",
-        },
-      });
-      return new Response("User has been created!", { status: 200 });
-    } catch (err) {
-      console.log(err);
-      return new Response("Failed to create the user!", { status: 500 });
-    }
-  }
-  if (eventType === "user.updated") {
-    try {
-      await prisma.user.update({
-        where: {
-          id: evt.data.id,
-        },
-        data: {
-          username: JSON.parse(body).data.username,
-          avatar: JSON.parse(body).data.image_url || "/noAvatar.png",
-        },
-      });
-      return new Response("User has been updated!", { status: 200 });
-    } catch (err) {
-      console.log(err);
-      return new Response("Failed to update the user!", { status: 500 });
-    }
-  }
+  // if (eventType === "user.created") {
+  //   try {
+  //     await prisma.user.create({
+  //       data: {
+  //         id: evt.data.id,
+  //         username: JSON.parse(body).data.username,
+  //         avatar: JSON.parse(body).data.image_url || "/noAvatar.png",
+  //         cover: "/noCover.png",
+  //       },
+  //     });
+  //     return new Response("User has been created!", { status: 200 });
+  //   } catch (err) {
+  //     console.log(err);
+  //     return new Response("Failed to create the user!", { status: 500 });
+  //   }
+  // }
+  // if (eventType === "user.updated") {
+  //   try {
+  //     await prisma.user.update({
+  //       where: {
+  //         id: evt.data.id,
+  //       },
+  //       data: {
+  //         username: JSON.parse(body).data.username,
+  //         avatar: JSON.parse(body).data.image_url || "/noAvatar.png",
+  //       },
+  //     });
+  //     return new Response("User has been updated!", { status: 200 });
+  //   } catch (err) {
+  //     console.log(err);
+  //     return new Response("Failed to update the user!", { status: 500 });
+  //   }
+  // }
 
   return new Response("Webhook received", { status: 200 });
 }

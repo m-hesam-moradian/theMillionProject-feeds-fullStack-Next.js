@@ -1,6 +1,6 @@
 // /app/api/search/route.ts
 
-import prisma from "@/lib/client";
+// import prisma from "@/lib/client";
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
@@ -14,35 +14,35 @@ export async function GET(req: Request) {
 
   const lowerQuery = query.toLowerCase();
 
-  const users = await prisma.user.findMany({
-    where: {
-      OR: [
-        {
-          username: {
-            contains: lowerQuery,
-          },
-        },
-        {
-          name: {
-            contains: lowerQuery,
-          },
-        },
-        {
-          surname: {
-            contains: lowerQuery,
-          },
-        },
-      ],
-    },
-    select: {
-      id: true,
-      username: true,
-      name: true,
-      surname: true,
-      avatar: true,
-    },
-    take: 10,
-  });
+  // const users = await prisma.user.findMany({
+  //   where: {
+  //     OR: [
+  //       {
+  //         username: {
+  //           contains: lowerQuery,
+  //         },
+  //       },
+  //       {
+  //         name: {
+  //           contains: lowerQuery,
+  //         },
+  //       },
+  //       {
+  //         surname: {
+  //           contains: lowerQuery,
+  //         },
+  //       },
+  //     ],
+  //   },
+  //   select: {
+  //     id: true,
+  //     username: true,
+  //     name: true,
+  //     surname: true,
+  //     avatar: true,
+  //   },
+  //   take: 10,
+  // });
 
-  return NextResponse.json(users);
+  // return NextResponse.json(users);
 }

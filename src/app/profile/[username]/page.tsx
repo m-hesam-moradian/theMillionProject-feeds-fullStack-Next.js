@@ -1,7 +1,7 @@
 import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
-import prisma from "@/lib/client";
+// import prisma from "@/lib/client";
 // import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -10,22 +10,22 @@ export const dynamic = "force-dynamic";
 const ProfilePage = async ({ params }: { params: { username: string } }) => {
   const username = params.username;
 
-  const user = await prisma.user.findFirst({
-    where: {
-      username,
-    },
-    include: {
-      _count: {
-        select: {
-          followers: true,
-          followings: true,
-          posts: true,
-        },
-      },
-    },
-  });
+  // const user = await prisma.user.findFirst({
+  //   where: {
+  //     username,
+  //   },
+  //   include: {
+  //     _count: {
+  //       select: {
+  //         followers: true,
+  //         followings: true,
+  //         posts: true,
+  //       },
+  //     },
+  //   },
+  // });
 
-  if (!user) return notFound();
+  // if (!user) return notFound();
 
   // const { userId: currentUserId } = auth();
 
@@ -48,7 +48,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
 
   return (
     <div className="flex gap-6 pt-6">
-      <div className="hidden xl:block w-[20%]">
+      {/* <div className="hidden xl:block w-[20%]">
         <LeftMenu type="profile" />
       </div>
       <div className="w-full lg:w-[70%] xl:w-[50%]">
@@ -94,7 +94,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
       </div>
       <div className="hidden lg:block w-[30%]">
         <RightMenu user={user} />
-      </div>
+      </div> */}
     </div>
   );
 };
