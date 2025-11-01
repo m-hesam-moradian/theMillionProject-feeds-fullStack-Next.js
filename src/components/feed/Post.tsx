@@ -7,8 +7,15 @@ import PostInfo from "./PostInfo";
 // import { auth } from "@clerk/nextjs/server";
 import { voteOnPoll } from "@/lib/actions";
 import PollBlock from "./PollBlock"; // adjust path if needed
+import { getUserFromJWT } from "@/lib/getUserFromJWT";
 
+const user = await getUserFromJWT();
 
+ 
+
+const userId = user ? user.id : null;
+
+console.log(user);
 
 const Post = ({ post }: { post: any }) => {
 
@@ -36,7 +43,7 @@ const Post = ({ post }: { post: any }) => {
               : post.userInfo.username}
           </span>
         </div>
-        {/* {userId === post.userInfo.id && <PostInfo postId={post.id} />} */}
+        {userId === post.userInfo.id && <PostInfo postId={post._id} />}
       </div>
 
       {/* DESC */}
@@ -60,14 +67,15 @@ const Post = ({ post }: { post: any }) => {
       )}
 
       {/* INTERACTION */}
-      {/* <Suspense fallback="Loading...">
+ 
+      <Suspense fallback="Loading...">
         <PostInteraction
           postId={post._id}
-          likes={post.like.map((like) => like.userId)}
-          commentNumber={post._count.comments}
+          like={post.Like}
+          comment={post.comment}
           userInfo={post.userInfo}
         />
-      </Suspense> */}
+      </Suspense>
 
       {/* COMMENTS */}
       <Suspense fallback="Loading...">

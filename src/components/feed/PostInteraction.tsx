@@ -7,13 +7,13 @@ import { useOptimistic, useState } from "react";
 
 const PostInteraction = ({
   postId,
-  likes,
-  commentNumber,
+  like,
+  comment,
   userInfo,
 }: {
   postId: number;
-  likes: string[];
-  commentNumber: number;
+  like: string[];
+  comment: string[];
   userInfo: {
     _id: string;
     name: string;
@@ -24,8 +24,8 @@ const PostInteraction = ({
 
 
   const [likeState, setLikeState] = useState({
-    likeCount: likes.length,
-    isLiked: userInfo._id ? likes.includes(userInfo._id) : false,
+    likeCount: like.length,
+    isLiked: userInfo._id ? like.includes(userInfo._id) : false,
   });
 
   const [optimisticLike, switchOptimisticLike] = useOptimistic(
@@ -79,7 +79,7 @@ const PostInteraction = ({
           />
           <span className="text-gray-300">|</span>
           <span className="text-gray-500">
-            {commentNumber}
+            {comment.length}
             <span className="hidden md:inline"> Comments</span>
           </span>
         </div>

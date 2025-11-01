@@ -534,20 +534,37 @@ export const addStory = async (img: string) => {
   }
 };
 
-export const deletePost = async (postId: number) => {
-  // const { userId } = auth();
 
-  if (!userId) throw new Error("User is not authenticated!");
+
+export const deletePost = async (postId: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id || user.role !== "ADMIN") {
+    console.warn("🚫 Unauthorized delete attempt");
+    return { error: "Only admins can delete posts." };
+  }
 
   try {
-    await prisma.post.delete({
-      where: {
-        id: postId,
-        userId,
-      },
-    });
-    revalidatePath("/");
-  } catch (err) {
-    console.log(err);
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/deletePostByAdmin",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, userId: user.id }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      console.error("❌ Delete failed:", result.error);
+      return { error: result.error || "Delete failed" };
+    }
+
+    console.log("✅ Post deleted:", result.message);
+    return { success: true };
+  } catch (err: any) {
+    console.error("❌ Network error:", err.message);
+    return { error: "Failed to reach Wix backend." };
   }
 };

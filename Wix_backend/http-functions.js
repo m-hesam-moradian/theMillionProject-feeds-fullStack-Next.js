@@ -339,5 +339,52 @@ export async function post_voteOnPoll(request) {
     });
   }
 }
+export async function post_deletePostByAdmin(request) {
+  try {
+    const body = await request.body.json();
+    const { postId, userId } = body;
 
+    if (!postId || !userId) {
+      return badRequest({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Missing postId or userId" },
+      });
+    }
+
+    const userResult = await wixData
+      .query("SocialMedia-User")
+      .eq("id", userId)
+      .limit(1)
+      .find();
+
+    if (userResult.items.length === 0) {
+      return notFound({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "User not found" },
+      });
+    }
+
+    const user = userResult.items[0];
+
+    if (user.role !== "ADMIN") {
+      return badRequest({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Unauthorized: Admins only" },
+      });
+    }
+
+    const deleteResult = await wixData.remove("SocialMedia-Post", postId);
+
+    return ok({
+      headers: { "Content-Type": "application/json" },
+      body: { success: true, message: "Post deleted", data: deleteResult },
+    });
+  } catch (err) {
+    console.error("❌ Delete error:", err);
+    return badRequest({
+      headers: { "Content-Type": "application/json" },
+      body: { success: false, error: err.message },
+    });
+  }
+}
 
