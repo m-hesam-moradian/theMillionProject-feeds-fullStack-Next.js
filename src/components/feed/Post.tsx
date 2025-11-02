@@ -15,7 +15,6 @@ const user = await getUserFromJWT();
 
 const userId = user ? user.id : null;
 
-console.log(user);
 
 const Post = ({ post }: { post: any }) => {
 
@@ -79,7 +78,8 @@ const Post = ({ post }: { post: any }) => {
 
       {/* COMMENTS */}
       <Suspense fallback="Loading...">
-        {/* <Comments postId={post.id} /> */}
+
+        <Comments postId={post.id} />
       </Suspense>
     </div>
   );
