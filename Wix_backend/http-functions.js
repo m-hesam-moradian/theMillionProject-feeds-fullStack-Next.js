@@ -444,4 +444,71 @@ export async function post_switchLike(request) {
     });
   }
 }
+export async function post_addCommentToPost(request) {
+  try {
+    const body = await request.body.json();
+    const { postId, userId, desc } = body;
 
+    if (!postId || !userId || !desc || !desc.trim()) {
+      return badRequest({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Missing postId, userId, or desc" },
+      });
+    }
+
+    // Fetch the post
+    const postResult = await wixData
+      .query("SocialMedia-Post")
+      .eq("_id", postId)
+      .limit(1)
+      .find();
+
+    if (postResult.items.length === 0) {
+      return notFound({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Post not found" },
+      });
+    }
+
+    const post = postResult.items[0];
+
+    // Create new comment object
+    const newComment = {
+      desc: desc.trim(),
+      userId,
+      createdAt: new Date(),
+    };
+
+    // Parse existing comments (stored as stringified JSON)
+    let existingComments = [];
+    try {
+      existingComments = JSON.parse(post.comment || "[]");
+    } catch (e) {
+      existingComments = [];
+    }
+
+    // Push new comment
+    const updatedPost = {
+      ...post,
+      comment: JSON.stringify([...existingComments, newComment]),
+    
+    };
+
+    const updateResult = await wixData.update("SocialMedia-Post", updatedPost);
+
+    return ok({
+      headers: { "Content-Type": "application/json" },
+      body: {
+        success: true,
+        comment: newComment,
+        post: updateResult,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Comment error:", err);
+    return badRequest({
+      headers: { "Content-Type": "application/json" },
+      body: { success: false, error: err.message },
+    });
+  }
+}

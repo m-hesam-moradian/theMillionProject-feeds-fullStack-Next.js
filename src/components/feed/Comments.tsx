@@ -1,7 +1,8 @@
 "use client";
 
+import { addCommentToPost } from "@/lib/actions";
 import Image from "next/image";
-import { useOptimistic, useState, useEffect } from "react";
+import { useOptimistic, useState ,startTransition} from "react";
 
 // Mocked user and comments
 const mockUser = {
@@ -14,7 +15,6 @@ const mockUser = {
 
 const mockComments = [
   {
-    id: "c1",
     desc: "This is a great post!",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -28,7 +28,6 @@ const mockComments = [
     },
   },
   {
-    id: "c2",
     desc: "Thanks for sharing this.",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -43,30 +42,40 @@ const mockComments = [
   },
 ];
 
-const Comments = ({ postId = "post123" }: { postId?: string }) => {
+const Comments = ({ postInfo, userInfo }: { postInfo: any; userInfo: any }) => {
   const [commentState, setCommentState] = useState(mockComments);
   const [desc, setDesc] = useState("");
   const [isAdmin, setIsAdmin] = useState(true); // Always true for mock
   const user = mockUser;
 
-  const add = async () => {
-    if (!user || !desc.trim()) return;
 
-    const newComment = {
-      id: Math.random().toString(),
-      desc,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: user.id,
-      user: {
-        ...user,
-        avatar: user.imageUrl || "/noAvatar.png",
-      },
-    };
+const add = async () => {
+  if (!user || !desc.trim()) return;
 
-    addOptimisticComment(newComment);
-    setDesc("");
+  const newComment = {
+    desc,
+    createdAt: new Date(),
+    userId: user.id,
+    user: {
+      ...user,
+      avatar: user.imageUrl || "/noAvatar.png",
+    },
   };
+
+  startTransition(() => {
+    addOptimisticComment(newComment);
+  });
+
+  setDesc("");
+
+  try {
+
+    
+    await addCommentToPost(postInfo._id, desc);
+  } catch (err) {
+    console.error("❌ Failed to send comment to backend:", err);
+  }
+};
 
   const [optimisticComments, addOptimisticComment] = useOptimistic(
     commentState,
@@ -75,7 +84,7 @@ const Comments = ({ postId = "post123" }: { postId?: string }) => {
 
   return (
     <>
-      {/* {user && isAdmin && (
+      {user && isAdmin && (
         <div className="flex items-center gap-4">
           <Image
             src={user.imageUrl || "/noAvatar.png"}
@@ -85,7 +94,10 @@ const Comments = ({ postId = "post123" }: { postId?: string }) => {
             className="w-8 h-8 rounded-full object-cover"
           />
           <form
-            action={add}
+            onSubmit={(e) => {
+              e.preventDefault();
+              add();
+            }}
             className="flex-1 flex items-center justify-between bg-slate-100 rounded-xl text-sm px-6 py-2 w-full"
           >
             <input
@@ -95,16 +107,22 @@ const Comments = ({ postId = "post123" }: { postId?: string }) => {
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
             />
+            <button
+              type="submit"
+              className="bg-blue-500 p-2 rounded-md text-white hover:bg-blue-600"
+            >
+              Send
+            </button>
           </form>
         </div>
-      )} */}
+      )}
 
       {optimisticComments.length > 0 && (
         <div className="m-2 p-2 shadow-inner rounded-lg bg-slate-100">
-          {optimisticComments.map((comment) => (
+          {optimisticComments.map((comment, index) => (
             <div
               className="flex gap-4 justify-between mt-4 p-2"
-              key={comment.id}
+              key={index}
             >
               <Image
                 src={comment.user.avatar || "/noAvatar.png"}

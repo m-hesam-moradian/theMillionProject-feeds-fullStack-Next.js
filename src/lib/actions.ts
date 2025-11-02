@@ -577,3 +577,40 @@ export const deletePost = async (postId: string) => {
 };
 
 
+
+export const addCommentToPost = async (postId: string, desc: string) => {
+  const user = await getUserFromJWT();
+console.log(`user ${user.id} \postId: ${postId} \desc: ${desc}`);
+
+  if (!user?._id || !desc.trim()) {
+    return { error: "Missing user or comment content" };
+  }
+
+  const payload = {
+    postId,
+    userId: user.id,
+    desc: desc.trim(),
+  };
+console.log(payload);
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/addCommentToPost",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to add comment" };
+    }
+
+    return result;
+  } catch (err: any) {
+    return { error: "Network error while adding comment" };
+  }
+};

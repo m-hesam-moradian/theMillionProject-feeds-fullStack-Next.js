@@ -22,8 +22,8 @@ const Post = ({ post }: { post: any }) => {
   ? post.polls
   : [];
 
-  // console.log(pollOptions);
-  
+
+       
   return (
     <div className="flex bg-white p-4 rounded-lg shadow-md flex-col gap-4">
       {/* USER */}
@@ -79,7 +79,7 @@ const Post = ({ post }: { post: any }) => {
       {/* COMMENTS */}
       <Suspense fallback="Loading...">
 
-        <Comments postId={post.id} />
+        <Comments postInfo={post} userInfo={user}  />
       </Suspense>
     </div>
   );
