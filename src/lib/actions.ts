@@ -578,11 +578,51 @@ export const deletePost = async (postId: string) => {
 
 
 
-export const addCommentToPost = async (postId: string, desc: string) => {
-  const user = await getUserFromJWT();
-console.log(`user ${user.id} \postId: ${postId} \desc: ${desc}`);
+// export const addCommentToPost = async (postId: string, desc: string) => {
+//   const user = await getUserFromJWT();
 
-  if (!user?._id || !desc.trim()) {
+
+//   if (!user?._id || !desc.trim()) {
+//     return { error: "Missing user or comment content" };
+//   }
+
+//   const payload = {
+//     postId,
+//     userId: user.id,
+//     desc: desc.trim(),
+//   };
+// console.log(payload);
+
+//   try {
+//     const response = await fetch(
+//       "https://www.themillionproject.org/_functions/addCommentToPost",
+//       {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       }
+//     );
+
+//     const result = await response.json();
+
+//     if (!response.ok || !result.success) {
+//       return { error: result.error || "Failed to add comment" };
+//     }
+
+//     return result;
+//   } catch (err: any) {
+//     return { error: "Network error while adding comment" };
+//   }
+// };
+
+export const addCommentToPost = async (postId: string, desc: string) => {
+  console.log("🔄 Starting addCommentToPost...");
+
+  const user = await getUserFromJWT();
+  console.log("👤 Retrieved user:", user);
+
+  if (!user?.id || !desc.trim()) {
+    console.warn("⚠️ Missing user or comment content");
     return { error: "Missing user or comment content" };
   }
 
@@ -591,7 +631,8 @@ console.log(`user ${user.id} \postId: ${postId} \desc: ${desc}`);
     userId: user.id,
     desc: desc.trim(),
   };
-console.log(payload);
+
+  console.log("📦 Prepared payload:", payload);
 
   try {
     const response = await fetch(
@@ -603,14 +644,20 @@ console.log(payload);
       }
     );
 
+    console.log("📡 Sent request to HTTP function");
+
     const result = await response.json();
+    console.log("📥 Received response:", result);
 
     if (!response.ok || !result.success) {
+      console.error("❌ Backend error:", result.error || "Failed to add comment");
       return { error: result.error || "Failed to add comment" };
     }
 
+    console.log("✅ Comment successfully added:", result.comment);
     return result;
   } catch (err: any) {
+    console.error("❌ Network error while adding comment:", err);
     return { error: "Network error while adding comment" };
   }
 };
