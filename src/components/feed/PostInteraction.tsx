@@ -33,6 +33,11 @@ const PostInteraction = ({
     })
   );
 
+const parsedComments = JSON.parse(comment || "[]");
+console.log(parsedComments); // ✅ Now returns 3
+
+
+
   const likeAction = async () => {
     // userId ? like.includes(userId) : false
  
@@ -83,7 +88,7 @@ const PostInteraction = ({
           />
           <span className="text-gray-300">|</span>
           <span className="text-gray-500">
-            {comment.length}
+            {parsedComments.length}
             <span className="hidden md:inline"> Comments</span>
           </span>
         </div>
