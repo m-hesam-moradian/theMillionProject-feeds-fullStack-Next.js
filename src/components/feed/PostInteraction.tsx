@@ -34,7 +34,6 @@ const PostInteraction = ({
   );
 
 const parsedComments = JSON.parse(comment || "[]");
-console.log(parsedComments); // ✅ Now returns 3
 
 
 

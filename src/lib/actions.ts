@@ -639,3 +639,30 @@ export const getCommentsByPostId = async (postId: string) => {
   }
 };
 
+
+
+export const getUsersByName = async (query: string) => {
+  if (!query) return [];
+
+  try {
+    const response = await fetch(
+      `https://www.themillionproject.org/_functions/getUsersByName?q=${encodeURIComponent(query)}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !result.users) {
+      return [];
+    }
+    
+    return result.users;
+  } catch (err) {
+    console.error("❌ Failed to fetch users by name:", err);
+    return [];
+  }
+};

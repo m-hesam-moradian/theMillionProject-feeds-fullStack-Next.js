@@ -594,3 +594,38 @@ export async function get_getCommentsByPostId(request) {
     });
   }
 }
+export async function get_getUsersByName(request) {
+  const nameQuery = request.query["q"];
+
+  if (!nameQuery || nameQuery.trim() === "") {
+    return badRequest({
+      headers: { "Content-Type": "application/json" },
+      body: { success: false, error: "Missing 'q' parameter" },
+    });
+  }
+
+  try {
+    const result = await wixData
+      .query("SocialMedia-User")
+      .contains("username", nameQuery)
+      .or(wixData.query("SocialMedia-User").contains("name", nameQuery))
+      .limit(10)
+      .find();
+
+    return ok({
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: {
+        success: true,
+        users: result.items,
+      },
+    });
+  } catch (err) {
+    return badRequest({
+      headers: { "Content-Type": "application/json" },
+      body: { success: false, error: err.message },
+    });
+  }
+}

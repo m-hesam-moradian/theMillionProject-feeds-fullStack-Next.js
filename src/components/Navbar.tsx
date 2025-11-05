@@ -5,47 +5,64 @@ import MobileMenu from "./MobileMenu";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-// interface User {
-//   id: string;
-//   username: string;
-//   email?: string;
-//   avatar?: string;
-//   name?: string;
-// }
-
-// import { useSelector } from "react-redux";
-// import { RootState } from "@/store/store";
+import { getUsersByName } from "@/lib/actions";
 
 const Navbar = () => {
   const user = useSelector((state: any) => state.user);
-  // const user = { id: "21", username: "sam" };
-  // const user = useSelector((state: RootState) => state.user);
-  // console.log("User ID:", user.id);
-  // console.log("Username:", user.username);
 
   const [value, setValue] = useState<string>("");
-
   const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(true);
   const [results, setResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (!value || value.trim() === "") {
-        setResults([]);
-        return;
-      }
+useEffect(() => {
+  const fetchUsers = async () => {
+    if (!value || value.trim() === "") {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
 
-      try {
-        const res = await fetch(`/api/search?q=${value}`);
-        const data = await res.json();
-        setResults(data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-    const debounce = setTimeout(fetchUsers, 300);
-    return () => clearTimeout(debounce);
-  }, [value]);
+    setIsLoading(true);
+    const users = await getUsersByName(value.trim());
+    setResults(users);
+    setIsLoading(false);
+  };
+
+  const debounce = setTimeout(fetchUsers, 300);
+  return () => clearTimeout(debounce);
+}, [value]);
+
+  const renderSearchResults = () => {
+    if (isLoading) {
+      return (
+        <div className="p-4 text-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-500 mx-auto"></div>
+        </div>
+      );
+    }
+
+    if (results.length === 0) {
+      return <div className="p-4 text-center text-gray-400">No user found</div>;
+    }
+
+    return results.map((user) => (
+      <Link
+        key={user.id}
+        href={`/profile/${user.username}`}
+        className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
+      >
+        <Image
+          src={user.avatar || "/noAvatar.png"}
+          alt={user.username}
+          width={40}
+          height={40}
+          className="w-10 h-10 rounded-full object-cover"
+        />
+        <span className="font-medium">{user.name || user.username}</span>
+      </Link>
+    ));
+  };
 
   return (
     <div className="h-24 flex items-center justify-around relative shadow-sm px-4">
@@ -62,7 +79,7 @@ const Navbar = () => {
       </div>
 
       {/* CENTER */}
-      <div className="  w-[50%] text-sm items-center justify-between ">
+      <div className="w-[50%] text-sm items-center justify-between">
         <div className="hidden md:flex gap-6 text-gray-600">
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -95,27 +112,11 @@ const Navbar = () => {
           <Image src="/search.png" alt="Search" width={14} height={14} />
           {isSearchbarOpen && (
             <div className="absolute top-12 left-0 bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto z-50">
-              {results.map((user) => (
-                <Link
-                  key={user.id}
-                  href={`/profile/${user.username}`}
-                  className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  <Image
-                    src={user.avatar || "/noAvatar.png"}
-                    alt={user.username}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <span className="font-medium">
-                    {user.name || user.username}
-                  </span>
-                </Link>
-              ))}
+              {renderSearchResults()}
             </div>
           )}
         </div>
+
         {/* MOBILE SEARCH ICON */}
         <div className="md:hidden flex items-center">
           <button onClick={() => setIsSearchbarOpen(!isSearchbarOpen)}>
@@ -136,24 +137,7 @@ const Navbar = () => {
               <Image src="/search.png" alt="Search" width={14} height={14} />
             </div>
             <div className="bg-white shadow-md rounded-md w-full max-h-60 overflow-y-auto mt-2">
-              {results.map((user) => (
-                <Link
-                  key={user.id}
-                  href={`/profile/${user.username}`}
-                  className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  <Image
-                    src={user.avatar || "/noAvatar.png"}
-                    alt={user.username}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <span className="font-medium">
-                    {user.name || user.username}
-                  </span>
-                </Link>
-              ))}
+              {renderSearchResults()}
             </div>
           </div>
         )}
@@ -171,7 +155,7 @@ const Navbar = () => {
           <Image src="/notifications.png" alt="" width={20} height={20} />
         </div>
 
-        {/* USER INFO FROM JWT */}
+        {/* USER INFO */}
         {user ? (
           <div className="flex items-center gap-2 cursor-pointer">
             <Image
@@ -186,9 +170,7 @@ const Navbar = () => {
         ) : (
           <div className="flex items-center gap-2 text-sm">
             <Image src="/login.png" alt="" width={20} height={20} />
-            <Link href="https://www.themillionproject.org/">
-              Login/Register
-            </Link>
+            <Link href="https://www.themillionproject.org/">Login/Register</Link>
           </div>
         )}
 
