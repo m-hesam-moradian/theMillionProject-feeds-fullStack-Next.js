@@ -383,7 +383,7 @@ export const addPost = async (
     return { error: "Cannot create an empty post" };
   }
 
-  console.log("👤 Using user:", user);
+  // console.log("👤 Using user:", user);
 
   // Transform polls array into desired object format
   let formattedPolls: { description: string; voters: string[] }[] | undefined =
@@ -403,7 +403,7 @@ export const addPost = async (
     polls: formattedPolls,
   };
 
-  console.log("📤 Final payload:", JSON.stringify(payload));
+  // console.log("📤 Final payload:", JSON.stringify(payload));
 
   try {
     console.log("🌐 Sending POST request to Wix...");
@@ -479,7 +479,7 @@ export const voteOnPoll = async (
       pollIndex,
     };
 
-    console.log("📤 Sending vote payload:", payload);
+    // console.log("📤 Sending vote payload:", payload);
 
     const response = await fetch(
       "https://www.themillionproject.org/_functions/voteOnPoll",
@@ -497,7 +497,7 @@ export const voteOnPoll = async (
       return { error: result.error || "Vote failed" };
     }
 
-    console.log("✅ Vote recorded:", result);
+    // console.log("✅ Vote recorded:", result);
     return { success: true };
   } catch (error: any) {
     console.error("❌ Network or fetch error:", error.message);
@@ -585,6 +585,7 @@ export const addCommentToPost = async (postId: string, desc: string) => {
     userId: user.id,
     desc: desc.trim(),
   };
+  console.log(payload);
 
   try {
     const response = await fetch(
@@ -595,7 +596,7 @@ export const addCommentToPost = async (postId: string, desc: string) => {
         body: JSON.stringify(payload),
       }
     );
-
+    
     const result = await response.json();
 
     if (!response.ok || !result.success) {
@@ -605,5 +606,34 @@ export const addCommentToPost = async (postId: string, desc: string) => {
     return result;
   } catch (err: any) {
     return { error: "Network error while adding comment" };
+  }
+};
+
+
+
+export const getCommentsByPostId = async (postId: string) => {
+  if (!postId) {
+    return { error: "Missing postId" };
+  }
+
+  try {
+    const response = await fetch(
+      `https://www.themillionproject.org/_functions/getCommentsByPostId?postId=${postId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to fetch comments" };
+    }
+
+    return result.comments;
+  } catch (err: any) {
+    console.error("❌ Error fetching comments:", err);
+    return { error: "Network error while fetching comments" };
   }
 };

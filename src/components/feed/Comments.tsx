@@ -1,93 +1,62 @@
 "use client";
 
-import { addCommentToPost } from "@/lib/actions";
+import { useEffect, useState, useOptimistic, startTransition } from "react";
 import Image from "next/image";
-import { useOptimistic, useState ,startTransition} from "react";
-
-// Mocked user and comments
-const mockUser = {
-  id: "1",
-  username: "AdminUser",
-  imageUrl: "/noAvatar.png",
-  name: "Admin",
-  surname: "User",
-};
-
-const mockComments = [
-  {
-    desc: "This is a great post!",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userId: "2",
-    user: {
-      id: "2",
-      username: "JaneDoe",
-      avatar: "/noAvatar.png",
-      name: "Jane",
-      surname: "Doe",
-    },
-  },
-  {
-    desc: "Thanks for sharing this.",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userId: "3",
-    user: {
-      id: "3",
-      username: "JohnSmith",
-      avatar: "/noAvatar.png",
-      name: "John",
-      surname: "Smith",
-    },
-  },
-];
+import { addCommentToPost, getCommentsByPostId } from "@/lib/actions";
 
 const Comments = ({ postInfo, userInfo }: { postInfo: any; userInfo: any }) => {
-  const [commentState, setCommentState] = useState(mockComments);
   const [desc, setDesc] = useState("");
-  const [isAdmin, setIsAdmin] = useState(true); // Always true for mock
-  const user = mockUser;
+  const [commentState, setCommentState] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState(true); // Always true for now
 
-
-const add = async () => {
-  if (!user || !desc.trim()) return;
-
-  const newComment = {
-    desc,
-    createdAt: new Date(),
-    userId: user.id,
-    user: {
-      ...user,
-      avatar: user.imageUrl || "/noAvatar.png",
-    },
-  };
-
-  startTransition(() => {
-    addOptimisticComment(newComment);
-  });
-
-  setDesc("");
-
-  try {
-
-    
-    await addCommentToPost(postInfo._id, desc);
-  } catch (err) {
-    console.error("❌ Failed to send comment to backend:", err);
-  }
-};
+  const user = userInfo;
 
   const [optimisticComments, addOptimisticComment] = useOptimistic(
     commentState,
     (state, value) => [value, ...state]
   );
 
+  // ✅ Fetch real comments on mount
+  useEffect(() => {
+    const fetchComments = async () => {
+      const result = await getCommentsByPostId(postInfo._id);
+      if (!("error" in result)) {
+        setCommentState(result);
+      }
+    };
+    fetchComments();
+  }, [postInfo._id]);
+
+  // ✅ Add new comment
+  const add = async () => {
+    if (!user || !desc.trim()) return;
+
+    const newComment = {
+      desc,
+      createdAt: new Date(),
+      userId: user.id,
+      userInfo: user,
+    };
+
+    startTransition(() => {
+      addOptimisticComment(newComment);
+    });
+
+    setDesc("");
+
+    try {
+      await addCommentToPost(postInfo._id, desc);
+    } catch (err) {
+      console.error("❌ Failed to send comment to backend:", err);
+    }
+  };
+
   return (
     <>
       {user && isAdmin && (
         <div className="flex items-center gap-4">
           <Image
-            src={user.imageUrl || "/noAvatar.png"}
+            src={user.avatar || "/noAvatar.png"}
             alt=""
             width={32}
             height={32}
@@ -118,14 +87,14 @@ const add = async () => {
       )}
 
       {optimisticComments.length > 0 && (
-        <div className="m-2 p-2 shadow-inner rounded-lg bg-slate-100">
+        <div className="m-2 p-2 shadow-inner rounded-lg bg-slate-100  ">
           {optimisticComments.map((comment, index) => (
             <div
-              className="flex gap-4 justify-between mt-4 p-2"
+              className="flex gap-4 justify-between mt-4 p-2 "
               key={index}
             >
               <Image
-                src={comment.user.avatar || "/noAvatar.png"}
+                src={comment.userInfo?.avatar || "/noAvatar.png"}
                 alt=""
                 width={40}
                 height={40}
@@ -133,12 +102,12 @@ const add = async () => {
               />
               <div className="flex flex-col gap-2 flex-1">
                 <span className="font-medium">
-                  {comment.user.name && comment.user.surname
-                    ? `${comment.user.name} ${comment.user.surname}`
-                    : comment.user.username}
+                  {comment.userInfo?.name && comment.userInfo?.surname
+                    ? `${comment.userInfo.name} ${comment.userInfo.surname}`
+                    : comment.userInfo?.username || "Unknown"}
                 </span>
                 <p>{comment.desc}</p>
-                <div className="flex items-center gap-8 text-xs text-gray-500 mt-2">
+                {/* <div className="flex items-center gap-8 text-xs text-gray-500 mt-2">
                   <div className="flex items-center gap-4">
                     <Image
                       src="/like.png"
@@ -151,7 +120,8 @@ const add = async () => {
                     <span className="text-gray-500">0 Likes</span>
                   </div>
                   <div className="">Reply</div>
-                </div>
+                </div> */}
+                
               </div>
               <Image
                 src="/more.png"

@@ -444,8 +444,6 @@ export async function post_switchLike(request) {
     });
   }
 }
-
-
 export async function post_addCommentToPost(request) {
   try {
     const body = await request.body.json();
@@ -511,6 +509,88 @@ export async function post_addCommentToPost(request) {
     return badRequest({
       headers: { "Content-Type": "application/json" },
       body: { success: false, error: err.message },
+    });
+  }
+}
+export async function get_getCommentsByPostId(request) {
+  try {
+    const postId = request.query["postId"];
+
+    if (!postId) {
+      return badRequest({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Missing postId" },
+      });
+    }
+
+    const postResult = await wixData
+      .query("SocialMedia-Post")
+      .eq("_id", postId)
+      .limit(1)
+      .find();
+
+    if (postResult.items.length === 0) {
+      return notFound({
+        headers: { "Content-Type": "application/json" },
+        body: { success: false, error: "Post not found" },
+      });
+    }
+
+    const post = postResult.items[0];
+
+    // Parse comments
+    let parsedComments = [];
+    try {
+      parsedComments = JSON.parse(post.comment || "[]");
+    } catch {
+      parsedComments = [];
+    }
+
+    // Enrich each comment with userInfo
+    const enrichedComments = await Promise.all(
+      parsedComments.map(async (comment) => {
+        let userInfo = null;
+
+        if (comment.userId) {
+          const userResult = await wixData
+            .query("SocialMedia-User")
+            .eq("id", comment.userId)
+            .limit(1)
+            .find();
+
+          if (userResult.items.length > 0) {
+            userInfo = userResult.items[0];
+          }
+        }
+
+        return {
+          ...comment,
+          userInfo,
+        };
+      })
+    );
+
+    return ok({
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: {
+        success: true,
+        comments: enrichedComments,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Failed to fetch comments:", err);
+    return badRequest({
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: {
+        success: false,
+        error: err.message,
+      },
     });
   }
 }
