@@ -35,8 +35,7 @@ const PostInteraction = ({
 
   const likeAction = async () => {
     // userId ? like.includes(userId) : false
-    console.log(userId);
-    console.log(like);
+ 
     
     switchOptimisticLike("");
     try {

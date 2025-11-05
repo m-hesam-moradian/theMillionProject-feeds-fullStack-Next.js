@@ -4,8 +4,7 @@ import MemberStorage from "../MemberStorage";
 
 const Feed = async () => {
   const posts = await getPosts();
-  // console.log(posts
-  // );
+
   
   return (
     <div className="flex flex-col gap-4 pb-5">

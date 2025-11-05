@@ -370,7 +370,7 @@ export const addPost = async (
   subscriptionOnly?: boolean,
   user?: string
 ) => {
-  console.log(polls);
+
 
   // Validate required fields
   if (!user || !user.trim()) {
@@ -383,7 +383,8 @@ export const addPost = async (
     return { error: "Cannot create an empty post" };
   }
 
-  // console.log("👤 Using user:", user);
+
+  
 
   // Transform polls array into desired object format
   let formattedPolls: { description: string; voters: string[] }[] | undefined =
@@ -585,7 +586,7 @@ export const addCommentToPost = async (postId: string, desc: string) => {
     userId: user.id,
     desc: desc.trim(),
   };
-  console.log(payload);
+  
 
   try {
     const response = await fetch(
@@ -637,3 +638,4 @@ export const getCommentsByPostId = async (postId: string) => {
     return { error: "Network error while fetching comments" };
   }
 };
+

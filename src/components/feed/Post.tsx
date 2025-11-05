@@ -17,7 +17,7 @@ const userId = user ? user.id : null;
 
 
 const Post = ({ post }: { post: any }) => {
-console.log(post);
+
 
  const pollOptions = Array.isArray(post.polls)
   ? post.polls
