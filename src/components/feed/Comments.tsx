@@ -87,6 +87,7 @@ const Comments = ({ postInfo, userInfo }: { postInfo: any; userInfo: any }) => {
       )}
 
 
+
       {optimisticComments.length > 0 && (
         <div className="m-2 p-2 shadow-inner rounded-lg bg-slate-100  ">
           {optimisticComments.map((comment, index) => (
