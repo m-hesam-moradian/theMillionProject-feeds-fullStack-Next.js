@@ -444,6 +444,8 @@ export async function post_switchLike(request) {
     });
   }
 }
+
+
 export async function post_addCommentToPost(request) {
   try {
     const body = await request.body.json();
@@ -491,7 +493,7 @@ export async function post_addCommentToPost(request) {
     const updatedPost = {
       ...post,
       comment: JSON.stringify([...existingComments, newComment]),
-    
+      updatedAt: new Date(),
     };
 
     const updateResult = await wixData.update("SocialMedia-Post", updatedPost);

@@ -541,8 +541,6 @@ export const addStory = async (img: string) => {
   }
 };
 
-
-
 export const deletePost = async (postId: string) => {
   const user = await getUserFromJWT();
 
@@ -575,10 +573,6 @@ export const deletePost = async (postId: string) => {
     return { error: "Failed to reach Wix backend." };
   }
 };
-
-
-
-
 export const addCommentToPost = async (postId: string, desc: string) => {
   const user = await getUserFromJWT();
 
