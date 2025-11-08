@@ -15,7 +15,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
 
   if (!user) return notFound();
 
-  console.log("✅ Fetched user:", user);
+  // console.log("✅ Fetched user:", user);
 
 
   let isBlocked;

@@ -23,9 +23,7 @@ const UserInfoCard = async ({ user }) => {
   let isFollowing = false;
   let isFollowingSent = false;
 
-  // const { userId: currentUserId } = auth();
-  console.log(currentUser.id);
-  console.log(user.id);
+
   
   const currentUserId = currentUser.id; // Mocked currentUserId, replace with actual auth logic
 
