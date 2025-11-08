@@ -9,19 +9,20 @@ import { voteOnPoll } from "@/lib/actions";
 import PollBlock from "./PollBlock"; // adjust path if needed
 import { getUserFromJWT } from "@/lib/getUserFromJWT";
 
-const user = await getUserFromJWT();
+
 
  
 
+
+
+
+const  Post = async ({ post }: { post: any }) => {
+const user = await getUserFromJWT();
 const userId = user ? user.id : null;
-
-
-const Post = ({ post }: { post: any }) => {
-
-
  const pollOptions = Array.isArray(post.polls)
   ? post.polls
   : [];
+
 
 
        

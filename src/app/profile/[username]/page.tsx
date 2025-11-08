@@ -1,32 +1,22 @@
 import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
+import { getUsersByName } from "@/lib/actions";
 
 import Image from "next/image";
 import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 const ProfilePage = async ({ params }: { params: { username: string } }) => {
-  const username = params.username;
+   const username = decodeURIComponent(params.username); // handles %20 in URL
 
-  // const user = await prisma.user.findFirst({
-  //   where: {
-  //     username,
-  //   },
-  //   include: {
-  //     _count: {
-  //       select: {
-  //         followers: true,
-  //         followings: true,
-  //         posts: true,
-  //       },
-  //     },
-  //   },
-  // });
+  const users = await getUsersByName(username);
+  const user = users.find((u) => u.username === username);
 
-  // if (!user) return notFound();
+  if (!user) return notFound();
 
-  // const { userId: currentUserId } = auth();
+  console.log("✅ Fetched user:", user);
+
 
   let isBlocked;
 
@@ -43,11 +33,14 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
   //   isBlocked = false;
   // }
 
-  if (isBlocked) return notFound();
+
+  // if (isBlocked) return notFound();
+
+
 
   return (
     <div className="flex gap-6 pt-6">
-      {/* <div className="hidden xl:block w-[20%]">
+      <div className="hidden xl:block w-[20%]">
         <LeftMenu type="profile" />
       </div>
       <div className="w-full lg:w-[70%] xl:w-[50%]">
@@ -69,21 +62,19 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
               />
             </div>
             <h1 className="mt-20 mb-4 text-2xl font-medium">
-              {user.name && user.surname
-                ? user.name + " " + user.surname
-                : user.username}
+              {user.username}
             </h1>
             <div className="flex items-center justify-center gap-12 mb-4">
               <div className="flex flex-col items-center">
-                <span className="font-medium">{user._count.posts}</span>
+                {/* <span className="font-medium">{user._count.posts}</span> */}
                 <span className="text-sm">Posts</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="font-medium">{user._count.followers}</span>
+                {/* <span className="font-medium">{user._count.followers}</span> */}
                 <span className="text-sm">Followers</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="font-medium">{user._count.followings}</span>
+                {/* <span className="font-medium">{user._count.followings}</span> */}
                 <span className="text-sm">Following</span>
               </div>
             </div>
@@ -93,7 +84,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
       </div>
       <div className="hidden lg:block w-[30%]">
         <RightMenu user={user} />
-      </div> */}
+      </div>
     </div>
   );
 };

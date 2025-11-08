@@ -11,7 +11,7 @@ const Navbar = () => {
   const user = useSelector((state: any) => state.user);
 
   const [value, setValue] = useState<string>("");
-  const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(true);
+  const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(false);
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 

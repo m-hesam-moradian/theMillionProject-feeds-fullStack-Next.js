@@ -1,12 +1,16 @@
-import prisma from "@/lib/client";
+
 // import { auth } from "@clerk/nextjs/server";
-import { User } from "@prisma/client";
+
 import Image from "next/image";
 import Link from "next/link";
 import UserInfoCardInteraction from "./UserInfoCardInteraction";
 import UpdateUser from "./UpdateUser";
+import { getUserFromJWT } from "@/lib/getUserFromJWT";
 
-const UserInfoCard = async ({ user }: { user: User }) => {
+
+
+const UserInfoCard = async ({ user }) => {
+  const currentUser = await getUserFromJWT();
   const createdAtDate = new Date(user.createdAt);
 
   const formattedDate = createdAtDate.toLocaleDateString("en-US", {
@@ -20,34 +24,37 @@ const UserInfoCard = async ({ user }: { user: User }) => {
   let isFollowingSent = false;
 
   // const { userId: currentUserId } = auth();
-  const currentUserId = "34567890"; // Mocked currentUserId, replace with actual auth logic
+  console.log(currentUser.id);
+  console.log(user.id);
+  
+  const currentUserId = currentUser.id; // Mocked currentUserId, replace with actual auth logic
 
-  if (currentUserId) {
-    const blockRes = await prisma.block.findFirst({
-      where: {
-        blockerId: currentUserId,
-        blockedId: user.id,
-      },
-    });
+  // if (currentUserId) {
+  //   const blockRes = await prisma.block.findFirst({
+  //     where: {
+  //       blockerId: currentUserId,
+  //       blockedId: user.id,
+  //     },
+  //   });
 
-    blockRes ? (isUserBlocked = true) : (isUserBlocked = false);
-    const followRes = await prisma.follower.findFirst({
-      where: {
-        followerId: currentUserId,
-        followingId: user.id,
-      },
-    });
+  //   blockRes ? (isUserBlocked = true) : (isUserBlocked = false);
+  //   const followRes = await prisma.follower.findFirst({
+  //     where: {
+  //       followerId: currentUserId,
+  //       followingId: user.id,
+  //     },
+  //   });
 
-    followRes ? (isFollowing = true) : (isFollowing = false);
-    const followReqRes = await prisma.followRequest.findFirst({
-      where: {
-        senderId: currentUserId,
-        receiverId: user.id,
-      },
-    });
+    // followRes ? (isFollowing = true) : (isFollowing = false);
+    // const followReqRes = await prisma.followRequest.findFirst({
+    //   where: {
+    //     senderId: currentUserId,
+    //     receiverId: user.id,
+    //   },
+    // });
 
-    followReqRes ? (isFollowingSent = true) : (isFollowingSent = false);
-  }
+  //   followReqRes ? (isFollowingSent = true) : (isFollowingSent = false);
+  // }
   return (
     <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
       {/* TOP */}
