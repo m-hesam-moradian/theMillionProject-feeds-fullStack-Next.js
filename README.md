@@ -150,7 +150,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Built with ❤️ by [Your Name] – Software Engineer.
+- Built with ❤️ by Sam Moradian – Software Engineer.
 - Special thanks to the Next.js and Wix communities for invaluable resources.
 - Star this repo if it helps you! ⭐
 
