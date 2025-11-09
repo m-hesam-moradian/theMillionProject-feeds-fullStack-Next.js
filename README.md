@@ -60,7 +60,7 @@ These artifacts were maintained iteratively throughout the development lifecycle
 ### Main Feed Page
 The homepage serves as the central hub for discovering and interacting with content. Users see a chronological feed of posts from followed accounts, with options to create new posts, filter by trends, and engage via reactions.
 
-![Main Feed Page Screenshot](https://via.placeholder.com/1200x800/4F46E5/FFFFFF?text=Main+Feed+Page) <!-- Replace with actual screenshot -->
+![Main Feed Page Screenshot](https://github.com/m-hesam-moradian/theMillionProject-feeds-fullStack-Next.js/blob/main/1757574515893.jpg?raw=true) <!-- Replace with actual screenshot -->
 
 **Key Components:**
 - Infinite scroll feed with lazy-loaded images.
