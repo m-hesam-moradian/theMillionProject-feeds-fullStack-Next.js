@@ -447,6 +447,7 @@ import { getUserFromJWT } from "@/lib/getUserFromJWT";
 export const getPosts = async () => {
   try {
     const user = await getUserFromJWT();
+console.log(user.id);
 
     const response = await fetch(
       "https://www.themillionproject.org/_functions/getPosts"
@@ -459,7 +460,16 @@ export const getPosts = async () => {
     }
 
     const posts = result.posts || [];
+    function wixImageToUrl(wixUri: string): string {
+  if (!wixUri.startsWith("wix:image://")) return wixUri;
 
+  const cleaned = wixUri.replace("wix:image://v1/", "");
+  const [mediaId, filenameWithParams] = cleaned.split("/");
+  const filename = filenameWithParams?.split("#")[0];
+
+  return `https://static.wixstatic.com/media/${mediaId}/${filename}`;
+}
+  
     // Filter subscription-only posts
     const filteredPosts = posts.filter((post: any) => {
       if (!post.subscriptionOnly) return true; // Public post

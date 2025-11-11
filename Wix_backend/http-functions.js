@@ -122,38 +122,108 @@ export async function post_addUser(request) {
     );
   }
 }
+// export async function post_addPost(request) {
+//   try {
+//     const body = await request.body.json();
+//     const {  desc, img, userId, subscriptionOnly, polls } = body;
+
+//     // Basic validation
+//     if (!userId) {
+//       return badRequest({ error: "Unauthorized: Missing user ID" });
+//     }
+
+//     if (!desc || !desc.trim()) {
+//       return badRequest({ error: "Cannot create an empty post!" });
+//     }
+
+//     // 🔍 Find the user by custom `id` field and get Wix `_id`
+//     const userQuery = await wixData
+//       .query("SocialMedia-User")
+//       .eq("id", userId) // ← this is your custom ID field
+//       .limit(1)
+//       .find();
+
+//     if (userQuery.items.length === 0) {
+//       return badRequest({ error: "User not found with provided ID" });
+//     }
+
+//     const wixUserId = userQuery.items[0]._id;
+
+//     const postData = {
+//       desc: desc.trim(),
+//       img,
+//       userId: { _id: wixUserId },
+//       subscriptionOnly: subscriptionOnly,
+//       createdAt: new Date(),
+//       updatedAt: new Date(),
+//       polls,
+//       Like: [],
+//       comment: [],
+//     };
+
+//     const postResult = await wixData.insert("SocialMedia-Post", postData);
+
+//     return ok({ post: postResult });
+//   } catch (err) {
+//     console.error("❌ Unexpected error:", err);
+//     return badRequest({
+//       error: "Something went wrong while creating the post.",
+//     });
+//   }
+// }
+
+
+
+
+import { fetch } from 'wix-fetch';
+import { mediaManager } from 'wix-media-backend';
+
 export async function post_addPost(request) {
   try {
     const body = await request.body.json();
-    const {  desc, img, userId, subscriptionOnly, polls } = body;
+    const { desc, img, userId, subscriptionOnly, polls } = body;
 
-    // Basic validation
-    if (!userId) {
-      return badRequest({ error: "Unauthorized: Missing user ID" });
+    if (!userId || !desc?.trim()) {
+      return badRequest({ error: "Missing required fields" });
     }
 
-    if (!desc || !desc.trim()) {
-      return badRequest({ error: "Cannot create an empty post!" });
-    }
-
-    // 🔍 Find the user by custom `id` field and get Wix `_id`
-    const userQuery = await wixData
-      .query("SocialMedia-User")
-      .eq("id", userId) // ← this is your custom ID field
-      .limit(1)
-      .find();
-
+    // 🔍 Find the user by custom `id` field
+    const userQuery = await wixData.query("SocialMedia-User").eq("id", userId).limit(1).find();
     if (userQuery.items.length === 0) {
       return badRequest({ error: "User not found with provided ID" });
     }
 
     const wixUserId = userQuery.items[0]._id;
 
+    let rawImageRef = null;
+    let publicImageUrl = null;
+
+    // ✅ If image URL is provided, download and upload to Wix Media
+    if (img && img.startsWith("http")) {
+      const imageResponse = await fetch(img, { method: "GET" });
+      if (imageResponse.ok) {
+        const buffer = await imageResponse.arrayBuffer();
+
+        const uploadResult = await mediaManager.upload({
+          fileName: `post-${userId}-${Date.now()}.jpg`,
+          file: buffer,
+          options: {
+            mediaType: "image",
+            mimeType: "image/jpeg",
+          },
+        });
+
+        rawImageRef = uploadResult.fileUrl; // wix:image://...
+        publicImageUrl = uploadResult.previewUrl; // https://static.wixstatic.com/media/...
+      }
+    }
+
     const postData = {
       desc: desc.trim(),
-      img,
+      rawImage: rawImageRef,
+      imageUrl: publicImageUrl,
       userId: { _id: wixUserId },
-      subscriptionOnly: subscriptionOnly,
+      subscriptionOnly: subscriptionOnly ?? false,
       createdAt: new Date(),
       updatedAt: new Date(),
       polls,
@@ -166,11 +236,11 @@ export async function post_addPost(request) {
     return ok({ post: postResult });
   } catch (err) {
     console.error("❌ Unexpected error:", err);
-    return badRequest({
-      error: "Something went wrong while creating the post.",
-    });
+    return badRequest({ error: "Something went wrong while creating the post." });
   }
 }
+
+
 export async function get_getPosts(request) {
   try {
     const postResults = await wixData.query("SocialMedia-Post").find();
@@ -629,3 +699,13 @@ export async function get_getUsersByName(request) {
     });
   }
 }
+
+
+
+
+
+
+
+
+
+
