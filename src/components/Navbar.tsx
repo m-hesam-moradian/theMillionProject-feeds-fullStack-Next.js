@@ -7,34 +7,44 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getUsersByName } from "@/lib/actions";
 
-const Navbar = () => {
-  const user = useSelector((state: any) => state.user);
+import { useRouter } from "next/navigation"; // Add this at the top
 
+const Navbar = () => {
+  const router = useRouter(); // Initialize router
+  const user = useSelector((state: any) => state.user);
   const [value, setValue] = useState<string>("");
   const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(false);
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isNavigating, setIsNavigating] = useState<boolean>(false); // NEW
 
-useEffect(() => {
-  const fetchUsers = async () => {
-    if (!value || value.trim() === "") {
-      setResults([]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!value || value.trim() === "") {
+        setResults([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      const users = await getUsersByName(value.trim());
+      setResults(users);
       setIsLoading(false);
-      return;
-    }
+    };
 
-    setIsLoading(true);
-    const users = await getUsersByName(value.trim());
-    setResults(users);
-    setIsLoading(false);
+    const debounce = setTimeout(fetchUsers, 300);
+    return () => clearTimeout(debounce);
+  }, [value]);
+
+  const handleUserClick = (e: React.MouseEvent, username: string) => {
+    e.preventDefault();
+    setIsNavigating(true);
+    setIsSearchbarOpen(false);
+    router.push(`/profile/${username}`);
   };
 
-  const debounce = setTimeout(fetchUsers, 300);
-  return () => clearTimeout(debounce);
-}, [value]);
-
   const renderSearchResults = () => {
-    if (isLoading) {
+    if (isLoading || isNavigating) {
       return (
         <div className="p-4 text-center">
           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-500 mx-auto"></div>
@@ -47,9 +57,9 @@ useEffect(() => {
     }
 
     return results.map((user) => (
-      <Link
+      <div
         key={user.id}
-        href={`/profile/${user.username}`}
+        onClick={(e) => handleUserClick(e, user.username)}
         className="flex items-center gap-4 p-2 hover:bg-gray-100 cursor-pointer"
       >
         <Image
@@ -60,9 +70,10 @@ useEffect(() => {
           className="w-10 h-10 rounded-full object-cover"
         />
         <span className="font-medium">{user.name || user.username}</span>
-      </Link>
+      </div>
     ));
   };
+
 
   return (
     <div className="h-24 flex items-center justify-around relative shadow-sm px-4">
@@ -165,7 +176,9 @@ useEffect(() => {
               height={28}
               className="w-7 h-7 rounded-full object-cover"
             />
-            <span className="font-medium">{user.username}</span>
+            <span className="font-medium">{user.username}
+            
+            </span>
           </div>
         ) : (
           <div className="flex items-center gap-2 text-sm">

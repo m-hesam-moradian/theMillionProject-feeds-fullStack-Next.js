@@ -1,5 +1,3 @@
-// import prisma from "@/lib/client";
-// import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 

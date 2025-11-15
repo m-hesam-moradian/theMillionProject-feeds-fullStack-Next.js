@@ -1,13 +1,24 @@
 "use client";
 
 import { acceptFollowRequest, declineFollowRequest } from "@/lib/actions";
-import { FollowRequest, User } from "@prisma/client";
 import Image from "next/image";
 import { useOptimistic, useState } from "react";
 
-type RequestWithUser = FollowRequest & {
+// Removed: Prisma types, now using Wix
+type User = {
+  id: string;
+  username: string;
+  avatar?: string;
+  name?: string;
+  surname?: string;
+};
+
+type FollowRequest = {
+  id: number;
   sender: User;
 };
+
+type RequestWithUser = FollowRequest;
 
 const FriendRequestList = ({ requests }: { requests: RequestWithUser[] }) => {
   const [requestState, setRequestState] = useState(requests);

@@ -1,7 +1,15 @@
-import prisma from "@/lib/client";
-import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+
+// Removed: Prisma types, now using Wix
+type User = {
+  id: string;
+  username: string;
+  avatar?: string;
+  cover?: string;
+  name?: string;
+  surname?: string;
+};
 
 const UserMediaCard = async ({ user }: { user: User }) => {
   

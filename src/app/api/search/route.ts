@@ -1,6 +1,5 @@
 // /app/api/search/route.ts
 
-// import prisma from "@/lib/client";
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 

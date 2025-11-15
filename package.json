@@ -6,11 +6,9 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.1.4",
     "@reduxjs/toolkit": "^2.9.0",
     "babel-plugin-react-compiler": "^0.0.0-experimental-938cd9a-20240601",
     "jose": "^6.1.0",
@@ -22,7 +20,6 @@
     "react-dom": "19.0.0-rc-f994737d14-20240522",
     "react-redux": "^9.2.0",
     "redux-thunk": "^3.1.0",
-    "svix": "^1.69.0",
     "sweetalert2": "^11.23.0",
     "uuid": "^13.0.0",
     "zod": "^3.23.8"

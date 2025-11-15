@@ -1,25 +1,12 @@
-import prisma from "@/lib/client";
-// import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import FriendRequestList from "./FriendRequestList";
 
 const FriendRequests = async () => {
-  // const { userId } = auth();
-  const userId = "34567890"; // Mocked userId, replace with actual auth logic
-
-  if (!userId) return null;
-
-  const requests = await prisma.followRequest.findMany({
-    where: {
-      receiverId: userId,
-    },
-    include: {
-      sender: true,
-    },
-  });
-
-  if (requests.length === 0) return null;
+  // Removed: Prisma queries - now using Wix
+  // This component needs to be updated to fetch from Wix API
+  
+  const requests: any[] = [];
   return (
     <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
       {/* TOP */}

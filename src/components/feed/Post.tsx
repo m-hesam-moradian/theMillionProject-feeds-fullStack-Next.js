@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Comments from "./Comments";
-// import { Post as PostType, User } from "@prisma/client";
 import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
-// import { auth } from "@clerk/nextjs/server";
 import { voteOnPoll } from "@/lib/actions";
 import PollBlock from "./PollBlock"; // adjust path if needed
 import { getUserFromJWT } from "@/lib/getUserFromJWT";

@@ -47,6 +47,8 @@ export async function middleware(req: NextRequest) {
     console.log(queryUserId);
     const user = await validateUser(queryUserId);
 
+    console.log(user);
+
     if (user) {
       const payload = {
         id: user.id,

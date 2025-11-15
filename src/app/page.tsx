@@ -2,13 +2,10 @@ import AddPostWrapper from "@/components/AddPostWrapper";
 import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
-import LoginValidator from "@/components/LoginValidator";
 
 const Homepage = () => {
   return (
     <>
-      {/*  */}
-      {/* <LoginValidator />; */}
       <div className="flex gap-6 pt-6">
         <div className="hidden xl:block w-[20%]">
           <LeftMenu type="home" />
