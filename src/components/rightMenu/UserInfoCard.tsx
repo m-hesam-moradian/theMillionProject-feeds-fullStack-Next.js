@@ -7,7 +7,7 @@ import { getUserFromJWT } from "@/lib/getUserFromJWT";
 
 
 
-const UserInfoCard = async ({ user }) => {
+const UserInfoCard = async ({ user }: { user: any }) => {
   const currentUser = await getUserFromJWT();
   const createdAtDate = new Date(user.createdAt);
 
@@ -23,7 +23,7 @@ const UserInfoCard = async ({ user }) => {
 
 
   
-  const currentUserId = currentUser.id; // Mocked currentUserId, replace with actual auth logic
+  const currentUserId = currentUser?.id; // Mocked currentUserId, replace with actual auth logic
 
   // if (currentUserId) {
   //   const blockRes = await prisma.block.findFirst({

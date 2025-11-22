@@ -35,7 +35,11 @@ const PostInteraction = ({
 
   console.log(comment);
   
-const parsedComments = JSON.parse(comment || "[]");
+const parsedComments = Array.isArray(comment) 
+  ? comment 
+  : typeof comment === 'string' 
+    ? JSON.parse(comment || "[]") 
+    : [];
 console.log("parsedComments:", parsedComments);
 
 

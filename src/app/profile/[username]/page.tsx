@@ -11,7 +11,7 @@ const ProfilePage = async ({ params }: { params: { username: string } }) => {
    const username = decodeURIComponent(params.username); // handles %20 in URL
 
   const users = await getUsersByName(username);
-  const user = users.find((u) => u.username === username);
+  const user = users.find((u: any) => u.username === username);
 
   if (!user) return notFound();
 

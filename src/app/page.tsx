@@ -2,8 +2,11 @@ import AddPostWrapper from "@/components/AddPostWrapper";
 import Feed from "@/components/feed/Feed";
 import LeftMenu from "@/components/leftMenu/LeftMenu";
 import RightMenu from "@/components/rightMenu/RightMenu";
+import { getUserFromJWT } from "@/lib/getUserFromJWT";
 
-const Homepage = () => {
+const Homepage = async () => {
+  const user = await getUserFromJWT();
+
   return (
     <>
       <div className="flex gap-6 pt-6">
@@ -17,7 +20,7 @@ const Homepage = () => {
           </div>
         </div>
         <div className="hidden lg:block w-[30%]">
-          <RightMenu />
+          <RightMenu user={user || undefined} />
         </div>
       </div>
     </>

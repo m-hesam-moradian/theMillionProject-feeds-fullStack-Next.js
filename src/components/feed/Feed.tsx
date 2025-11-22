@@ -9,7 +9,7 @@ const Feed = async () => {
   return (
     <div className="flex flex-col gap-4 pb-5">
       {posts.length
-        ? posts.map((post) => <Post key={post._id} post={post} />)
+        ? posts.map((post: any) => <Post key={post._id} post={post} />)
         : "No posts found!"}
     </div>
   );

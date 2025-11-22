@@ -8,7 +8,7 @@ export default function PollOptionClient({
   optionId,
   children,
 }: {
-  pollId: number;
+  pollId: string;
   optionId: number;
   children: React.ReactNode;
 }) {

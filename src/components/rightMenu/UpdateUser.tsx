@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import UpdateButton from "./UpdateButton";
 import { CldUploadWidget } from "next-cloudinary";
 
-const UpdateUser = ({ user }) => {
+const UpdateUser = ({ user }: { user: any }) => {
   
   
   const [open, setOpen] = useState(false);

@@ -109,7 +109,7 @@ export const getPosts = async () => {
     // Filter subscription-only posts
     const filteredPosts = posts.filter((post: any) => {
       if (!post.subscriptionOnly) return true; // Public post
-      if (!user.isSubscribed) return false; // Non-subscribers can't see
+      if (!user?.isSubscribed) return false; // Non-subscribers can't see
       return true; // Subscriber sees all
     });
 
@@ -278,5 +278,273 @@ export const getUsersByName = async (query: string) => {
   } catch (err) {
     console.error("❌ Failed to fetch users by name:", err);
     return [];
+  }
+};
+
+export const switchFollow = async (userId: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id) {
+    return { error: "Unauthorized: Missing user ID" };
+  }
+
+  const payload = {
+    userId: user.id,
+    targetUserId: userId,
+  };
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/switchFollow",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to toggle follow" };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: "Network error while toggling follow" };
+  }
+};
+
+export const switchBlock = async (userId: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id) {
+    return { error: "Unauthorized: Missing user ID" };
+  }
+
+  const payload = {
+    userId: user.id,
+    targetUserId: userId,
+  };
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/switchBlock",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to toggle block" };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: "Network error while toggling block" };
+  }
+};
+
+export const getCurrentUserRole = async () => {
+  const user = await getUserFromJWT();
+
+  if (!user) {
+    return null;
+  }
+
+  return user.role || null;
+};
+
+export const getUserRole = async (userId: string) => {
+  if (!userId) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `https://www.themillionproject.org/_functions/getUserRole?userId=${encodeURIComponent(userId)}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return null;
+    }
+
+    return result.role || null;
+  } catch (err) {
+    console.error("❌ Failed to fetch user role:", err);
+    return null;
+  }
+};
+
+export const toggleUserAdmin = async (userId: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id || user.role !== "ADMIN") {
+    return { error: "Unauthorized: Admin access required" };
+  }
+
+  const payload = {
+    userId,
+  };
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/toggleUserAdmin",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to toggle admin role" };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: "Network error while toggling admin role" };
+  }
+};
+
+export const acceptFollowRequest = async (userId: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id) {
+    return { error: "Unauthorized: Missing user ID" };
+  }
+
+  const payload = {
+    userId: user.id,
+    targetUserId: userId,
+  };
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/acceptFollowRequest",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to accept follow request" };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: "Network error while accepting follow request" };
+  }
+};
+
+export const declineFollowRequest = async (userId: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id) {
+    return { error: "Unauthorized: Missing user ID" };
+  }
+
+  const payload = {
+    userId: user.id,
+    targetUserId: userId,
+  };
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/declineFollowRequest",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to decline follow request" };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: "Network error while declining follow request" };
+  }
+};
+
+export const updateProfile = async (
+  prevState: any,
+  formData: FormData | { formData: FormData; cover: string; id: string }
+) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id) {
+    return { success: false, error: "Unauthorized: Missing user ID" };
+  }
+
+  // Handle both FormData and the wrapped object format
+  let actualFormData: FormData;
+  let cover = "";
+  let userId = user.id;
+
+  if (formData instanceof FormData) {
+    actualFormData = formData;
+  } else {
+    actualFormData = formData.formData;
+    cover = formData.cover || "";
+    userId = formData.id || user.id;
+  }
+
+  // Only allow users to update their own profile
+  if (userId !== user.id) {
+    return { success: false, error: "Unauthorized: Cannot update other user's profile" };
+  }
+
+  const payload: any = {
+    id: userId,
+    cover: cover || actualFormData.get("cover")?.toString() || "",
+    name: actualFormData.get("name")?.toString() || "",
+    surname: actualFormData.get("surname")?.toString() || "",
+    description: actualFormData.get("description")?.toString() || "",
+    city: actualFormData.get("city")?.toString() || "",
+    school: actualFormData.get("school")?.toString() || "",
+    work: actualFormData.get("work")?.toString() || "",
+    website: actualFormData.get("website")?.toString() || "",
+  };
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/addUser",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { success: false, error: result.error || "Failed to update profile" };
+    }
+
+    return { success: true, error: false };
+  } catch (err: any) {
+    return { success: false, error: "Network error while updating profile" };
   }
 };

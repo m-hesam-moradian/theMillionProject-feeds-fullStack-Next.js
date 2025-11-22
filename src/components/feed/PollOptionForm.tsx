@@ -6,7 +6,7 @@ export default function PollOptionForm({
   optionId,
   children,
 }: {
-  pollId: number;
+  pollId: string;
   optionId: number;
   children: React.ReactNode;
 }) {

@@ -6,7 +6,7 @@ import UserInfoCard from "./UserInfoCard";
 import UserMediaCard from "./UserMediaCard";
 import { Suspense } from "react";
 
-const RightMenu = ({ user }) => {
+const RightMenu = ({ user }: { user?: any }) => {
   return (
     <div className="flex flex-col gap-6">
       {user ? (
