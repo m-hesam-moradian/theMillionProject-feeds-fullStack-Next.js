@@ -3,16 +3,8 @@ import Comments from "./Comments";
 import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
-import { voteOnPoll } from "@/lib/actions";
 import PollBlock from "./PollBlock"; // adjust path if needed
 import { getUserFromJWT } from "@/lib/getUserFromJWT";
-
-
-
- 
-
-
-
 
 const  Post = async ({ post }: { post: any }) => {
 const user = await getUserFromJWT();
@@ -21,9 +13,6 @@ const userId = user ? user.id : null;
   ? post.polls
   : [];
 
-
-
-       
   return (
     <div className="flex bg-white p-4 rounded-lg shadow-md flex-col gap-4">
       {/* USER */}
@@ -68,12 +57,12 @@ const userId = user ? user.id : null;
       {/* INTERACTION */}
  
       <Suspense fallback="Loading...">
-        <PostInteraction
+        {/* <PostInteraction
           postId={post._id}
           like={post.Like}
           comment={post.comment}
           userInfo={post.userInfo}
-        />
+        /> */}
       </Suspense>
 
       {/* COMMENTS */}

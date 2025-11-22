@@ -122,56 +122,55 @@ export async function post_addUser(request) {
     );
   }
 }
+// export async function post_addPost(request) {
+//   try {
+//     const body = await request.body.json();
+//     const {  desc, img, userId, subscriptionOnly, polls } = body;
 
-export async function post_addPost(request) {
-  try {
-    const body = await request.body.json();
-    const {  desc, img, userId, subscriptionOnly, polls } = body;
+//     // Basic validation
+//     if (!userId) {
+//       return badRequest({ error: "Unauthorized: Missing user ID" });
+//     }
 
-    // Basic validation
-    if (!userId) {
-      return badRequest({ error: "Unauthorized: Missing user ID" });
-    }
+//     if (!desc || !desc.trim()) {
+//       return badRequest({ error: "Cannot create an empty post!" });
+//     }
 
-    if (!desc || !desc.trim()) {
-      return badRequest({ error: "Cannot create an empty post!" });
-    }
+//     // 🔍 Find the user by custom `id` field and get Wix `_id`
+//     const userQuery = await wixData
+//       .query("SocialMedia-User")
+//       .eq("id", userId) // ← this is your custom ID field
+//       .limit(1)
+//       .find();
 
-    // 🔍 Find the user by custom `id` field and get Wix `_id`
-    const userQuery = await wixData
-      .query("SocialMedia-User")
-      .eq("id", userId) // ← this is your custom ID field
-      .limit(1)
-      .find();
+//     if (userQuery.items.length === 0) {
+//       return badRequest({ error: "User not found with provided ID" });
+//     }
 
-    if (userQuery.items.length === 0) {
-      return badRequest({ error: "User not found with provided ID" });
-    }
+//     const wixUserId = userQuery.items[0]._id;
 
-    const wixUserId = userQuery.items[0]._id;
+//     const postData = {
+//       desc: desc.trim(),
+//       img,
+//       userId: { _id: wixUserId },
+//       subscriptionOnly: subscriptionOnly,
+//       createdAt: new Date(),
+//       updatedAt: new Date(),
+//       polls,
+//       Like: [],
+//       comment: [],
+//     };
 
-    const postData = {
-      desc: desc.trim(),
-      img,
-      userId: { _id: wixUserId },
-      subscriptionOnly: subscriptionOnly,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      polls,
-      Like: [],
-      comment: [],
-    };
+//     const postResult = await wixData.insert("SocialMedia-Post", postData);
 
-    const postResult = await wixData.insert("SocialMedia-Post", postData);
-
-    return ok({ post: postResult });
-  } catch (err) {
-    console.error("❌ Unexpected error:", err);
-    return badRequest({
-      error: "Something went wrong while creating the post.",
-    });
-  }
-}
+//     return ok({ post: postResult });
+//   } catch (err) {
+//     console.error("❌ Unexpected error:", err);
+//     return badRequest({
+//       error: "Something went wrong while creating the post.",
+//     });
+//   }
+// }
 
 
 

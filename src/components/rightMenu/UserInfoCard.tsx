@@ -56,13 +56,13 @@ const UserInfoCard = async ({ user }) => {
       {/* TOP */}
       <div className="flex justify-between items-center font-medium">
         <span className="text-gray-500">User Information</span>
-        {currentUserId === user.id ? (
+        {/* {currentUserId === user.id ? (
           <UpdateUser user={user} />
         ) : (
           <Link href="/" className="text-main_third text-xs">
             See all
           </Link>
-        )}
+        )} */}
       </div>
       {/* BOTTOM */}
       <div className="flex flex-col gap-4 text-gray-500">

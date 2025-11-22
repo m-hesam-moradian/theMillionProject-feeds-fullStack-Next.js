@@ -33,7 +33,10 @@ const PostInteraction = ({
     })
   );
 
+  console.log(comment);
+  
 const parsedComments = JSON.parse(comment || "[]");
+console.log("parsedComments:", parsedComments);
 
 
 
