@@ -1,8 +1,8 @@
 "use client";
 
 import { voteOnPoll } from "@/lib/actions";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Swal from "sweetalert2";
 
 type PollBlockProps = {
   postId: string;
@@ -13,6 +13,7 @@ type PollBlockProps = {
 };
 
 export default function PollBlock({ postId, options }: PollBlockProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState<number | null>(null);
 
   const totalVotes = options.reduce(
@@ -27,18 +28,8 @@ export default function PollBlock({ postId, options }: PollBlockProps) {
 
     setLoading(null);
 
-    if (result.error) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: result.error,
-      });
-    } else {
-      Swal.fire({
-        icon: "success",
-        title: "Vote submitted!",
-        text: "Thanks for participating in the poll.",
-      });
+    if (!result.error) {
+      router.refresh();
     }
   };
 

@@ -2,9 +2,11 @@
 
 import { useEffect, useState, useOptimistic, startTransition } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { addCommentToPost, getCommentsByPostId } from "@/lib/actions";
 
 const Comments = ({ postInfo, userInfo }: { postInfo: any; userInfo: any }) => {
+  const router = useRouter();
   const [desc, setDesc] = useState("");
   const [commentState, setCommentState] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(true); // Always true for now
@@ -46,6 +48,8 @@ const Comments = ({ postInfo, userInfo }: { postInfo: any; userInfo: any }) => {
 
     try {
       await addCommentToPost(postInfo._id, desc);
+      setCommentState((prev) => [newComment, ...prev]);
+      router.refresh();
     } catch (err) {
       console.error("❌ Failed to send comment to backend:", err);
     }

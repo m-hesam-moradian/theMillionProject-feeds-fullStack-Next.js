@@ -6,12 +6,20 @@ import PostInfo from "./PostInfo";
 import PollBlock from "./PollBlock"; // adjust path if needed
 import { getUserFromJWT } from "@/lib/getUserFromJWT";
 
-const  Post = async ({ post }: { post: any }) => {
-const user = await getUserFromJWT();
-const userId = user ? user.id : null;
- const pollOptions = Array.isArray(post.polls)
-  ? post.polls
-  : [];
+const Post = async ({ post }: { post: any }) => {
+  const user = await getUserFromJWT();
+  const userId = user ? user.id : null;
+  const pollOptions = Array.isArray(post.polls) ? post.polls : [];
+  const likeData = Array.isArray(post.Like)
+    ? post.Like
+    : typeof post.Like === "string"
+    ? JSON.parse(post.Like || "[]")
+    : [];
+  const commentData = Array.isArray(post.comment)
+    ? post.comment
+    : typeof post.comment === "string"
+    ? JSON.parse(post.comment || "[]")
+    : [];
 
   return (
     <div className="flex bg-white p-4 rounded-lg shadow-md flex-col gap-4">
@@ -57,12 +65,12 @@ const userId = user ? user.id : null;
       {/* INTERACTION */}
  
       <Suspense fallback="Loading...">
-        {/* <PostInteraction
+        <PostInteraction
           postId={post._id}
-          like={post.Like}
-          comment={post.comment}
+          like={likeData}
+          comment={commentData}
           userInfo={post.userInfo}
-        /> */}
+        />
       </Suspense>
 
       {/* COMMENTS */}
