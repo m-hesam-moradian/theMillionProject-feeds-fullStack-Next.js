@@ -61,9 +61,10 @@ export async function post_addUser(request) {
     }
 
     // Prepare payload with defaults
+    const usernameNormalized = body.username ? body.username.trim().toLowerCase() : "";
     const payload = {
       id: body.id,
-      username: body.username,
+      username: usernameNormalized,
       avatar: body.avatar ?? "",
       cover: body.cover ?? "",
       name: body.name ?? "",

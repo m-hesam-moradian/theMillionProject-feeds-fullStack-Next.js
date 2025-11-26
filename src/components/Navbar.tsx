@@ -4,13 +4,15 @@ import Link from "next/link";
 import MobileMenu from "./MobileMenu";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import type { MouseEvent } from "react";
 import { useSelector } from "react-redux";
 import { getUsersByName } from "@/lib/actions";
 
-import { useRouter } from "next/navigation"; // Add this at the top
+import { useRouter, usePathname } from "next/navigation";
 
 const Navbar = () => {
   const router = useRouter(); // Initialize router
+  const pathname = usePathname();
   const user = useSelector((state: any) => state.user);
   const [value, setValue] = useState<string>("");
   const [isSearchbarOpen, setIsSearchbarOpen] = useState<boolean>(false);
@@ -36,7 +38,11 @@ const Navbar = () => {
     return () => clearTimeout(debounce);
   }, [value]);
 
-  const handleUserClick = (e: React.MouseEvent, username: string) => {
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [pathname]);
+
+  const handleUserClick = (e: MouseEvent<HTMLDivElement>, username: string) => {
     e.preventDefault();
     setIsNavigating(true);
     setIsSearchbarOpen(false);
@@ -168,7 +174,15 @@ const Navbar = () => {
 
         {/* USER INFO */}
         {user ? (
-          <div className="flex items-center gap-2 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => {
+              if (!user?.username) return;
+              setIsNavigating(true);
+              router.push(`/profile/${user.username}`);
+            }}
+            className="flex items-center gap-2 cursor-pointer"
+          >
             <Image
               src={user.avatar || "/noAvatar.png"}
               alt="User Avatar"
@@ -179,7 +193,7 @@ const Navbar = () => {
             <span className="font-medium">{user.username}
             
             </span>
-          </div>
+          </button>
         ) : (
           <div className="flex items-center gap-2 text-sm">
             <Image src="/login.png" alt="" width={20} height={20} />
@@ -189,6 +203,11 @@ const Navbar = () => {
 
         <MobileMenu />
       </div>
+      {isNavigating && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/60 backdrop-blur-sm">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+        </div>
+      )}
     </div>
   );
 };

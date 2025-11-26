@@ -522,6 +522,7 @@ export const updateProfile = async (
 
   const payload: any = {
     id: userId,
+    username: actualFormData.get("username")?.toString() || user.username,
     cover: cover || actualFormData.get("cover")?.toString() || "",
     name: actualFormData.get("name")?.toString() || "",
     surname: actualFormData.get("surname")?.toString() || "",
@@ -546,6 +547,47 @@ export const updateProfile = async (
 
     if (!response.ok || !result.success) {
       return { success: false, error: result.error || "Failed to update profile" };
+    }
+
+    // Fetch the updated user data after successful update
+    const userFetchResponse = await fetch(
+      `https://www.themillionproject.org/_functions/socialUserById?userId=${userId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    const userData = await userFetchResponse.json();
+
+    if (userFetchResponse.ok && userData.success && userData.user) {
+      // Update JWT with new user info, similar to setUsername
+      const updatedPayload = {
+        ...user,
+        ...userData.user,
+      };
+
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        return { success: false, error: "Server misconfiguration: missing JWT secret." };
+      }
+
+      const token = await new SignJWT(updatedPayload)
+        .setProtectedHeader({ alg: "HS256" })
+        .setExpirationTime("1d")
+        .sign(new TextEncoder().encode(secret));
+
+      const cookieStore = cookies();
+      cookieStore.set("authToken", token, {
+        path: "/",
+        httpOnly: true,
+        maxAge: 86400,
+      });
+      cookieStore.set("userInfo", JSON.stringify(updatedPayload), {
+        path: "/",
+        httpOnly: false,
+        maxAge: 86400,
+      });
     }
 
     return { success: true, error: false };
