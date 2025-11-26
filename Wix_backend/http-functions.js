@@ -123,6 +123,169 @@ export async function post_addUser(request) {
   }
 }
 
+export async function get_socialUserById(request) {
+  const headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  };
+
+  const userId = request.query["userId"];
+
+  if (!userId) {
+    return badRequest({
+      headers,
+      body: { success: false, error: "Missing userId" },
+    });
+  }
+
+  try {
+    const result = await wixData
+      .query("SocialMedia-User")
+      .eq("id", userId)
+      .limit(1)
+      .find();
+
+    if (result.items.length === 0) {
+      return ok({
+        headers,
+        body: { success: false, user: null },
+      });
+    }
+
+    return ok({
+      headers,
+      body: { success: true, user: result.items[0] },
+    });
+  } catch (err) {
+    return badRequest({
+      headers,
+      body: { success: false, error: err.message },
+    });
+  }
+}
+
+export async function post_setUsername(request) {
+  const headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  };
+
+  const USERNAME_REGEX = /^[a-z0-9]+$/;
+  const MIN_LENGTH = 5;
+
+  try {
+    const body = await request.body.json();
+    const { userId, username } = body;
+
+    if (!userId || !username) {
+      return badRequest({
+        headers,
+        body: { success: false, error: "Missing userId or username" },
+      });
+    }
+
+    const normalizedUsername = username.trim().toLowerCase();
+
+    if (normalizedUsername.length < MIN_LENGTH) {
+      return badRequest({
+        headers,
+        body: {
+          success: false,
+          error: `Username must be at least ${MIN_LENGTH} characters long`,
+        },
+      });
+    }
+
+    if (!USERNAME_REGEX.test(normalizedUsername)) {
+      return badRequest({
+        headers,
+        body: {
+          success: false,
+          error: "Username can only contain lowercase letters and numbers",
+        },
+      });
+    }
+
+    const usernameConflict = await wixData
+      .query("SocialMedia-User")
+      .eq("username", normalizedUsername)
+      .ne("id", userId)
+      .find();
+
+    if (usernameConflict.items.length > 0) {
+      return badRequest({
+        headers,
+        body: { success: false, error: "Username already taken" },
+      });
+    }
+
+    const existingUser = await wixData
+      .query("SocialMedia-User")
+      .eq("id", userId)
+      .limit(1)
+      .find();
+
+    let wixUser;
+    try {
+      wixUser = await wixUsersBackend.getUser(userId);
+    } catch (err) {
+      console.warn("⚠️ Failed to fetch Wix user profile:", err.message);
+    }
+
+    const existingItem = existingUser.items[0];
+
+    const payload = {
+      id: userId,
+      username: normalizedUsername,
+      avatar:
+        body.avatar ??
+        existingItem?.avatar ??
+        wixUser?.profile?.photo?.url ??
+        "",
+      cover: body.cover ?? existingItem?.cover ?? "",
+      name:
+        body.name ??
+        existingItem?.name ??
+        wixUser?.profile?.firstName ??
+        "",
+      surname:
+        body.surname ??
+        existingItem?.surname ??
+        wixUser?.profile?.lastName ??
+        "",
+      description: body.description ?? existingItem?.description ?? "",
+      city: body.city ?? existingItem?.city ?? "",
+      school: body.school ?? existingItem?.school ?? "",
+      work: body.work ?? existingItem?.work ?? "",
+      website: body.website ?? existingItem?.website ?? "",
+      createdAt: existingItem?.createdAt ?? new Date().toISOString(),
+      role: body.role ?? existingItem?.role ?? "USER",
+      isSubscribed: body.isSubscribed ?? existingItem?.isSubscribed ?? false,
+    };
+
+    let result;
+    if (existingItem) {
+      result = await wixData.update("SocialMedia-User", {
+        ...existingItem,
+        ...payload,
+      });
+    } else {
+      result = await wixData.insert("SocialMedia-User", payload);
+    }
+
+    return ok({
+      headers,
+      body: { success: true, user: result },
+    });
+  } catch (err) {
+    console.error("❌ setUsername error:", err);
+    return badRequest({
+      headers,
+      body: { success: false, error: err.message },
+    });
+  }
+}
+
 export async function post_addPost(request) {
   try {
     const body = await request.body.json();

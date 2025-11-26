@@ -39,6 +39,23 @@ async function validateUser(userId: string): Promise<any | null> {
   }
 }
 
+async function fetchSocialUser(userId: string): Promise<any | null> {
+  try {
+    const res = await fetch(
+      `https://www.themillionproject.org/_functions/socialUserById?userId=${encodeURIComponent(
+        userId
+      )}`,
+      { cache: "no-store" }
+    );
+    const data = await res.json();
+    if (data.success && data.user) return data.user;
+    return null;
+  } catch (err) {
+    console.error("Failed to fetch social user:", err);
+    return null;
+  }
+}
+
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
 
@@ -50,15 +67,23 @@ export async function middleware(req: NextRequest) {
     console.log(user);
 
     if (user) {
+      const socialUser = await fetchSocialUser(user.id);
+
       const payload = {
         id: user.id,
-        username: user.nickname || user.memberName || user.loginEmail || "",
-        avatar: user.picture?.url || "",
-        role: user.role || "ADMIN",
-        isSubscribed: user.isSubscribed ?? false,
+        username: socialUser?.username || "",
+        avatar: socialUser?.avatar || user.picture?.url || "",
+        role: socialUser?.role || user.role || "ADMIN",
+        isSubscribed:
+          socialUser?.isSubscribed ?? (user.isSubscribed ?? false),
       };
 
-      await validateAndPostUser(user);
+      if (socialUser?.username) {
+        await validateAndPostUser({
+          ...user,
+          username: socialUser.username,
+        });
+      }
       const token = await createJWT(payload);
 
       const res = NextResponse.redirect(new URL("/", req.url));

@@ -2,10 +2,21 @@ export async function validateAndPostUser(
   user: any
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const derivedUsername =
+      user.username ||
+      user.nickname ||
+      user.memberName ||
+      user.loginEmail ||
+      "";
+
+    if (!derivedUsername) {
+      return { success: false, error: "Missing username" };
+    }
+
     // Build payload based on SocialMedia-User schema
     const payload = {
       id: user.id,
-      username: user.nickname || user.memberName || user.loginEmail || "", // required
+      username: derivedUsername,
       avatar: user.picture?.url || "",
       cover: "",
       name: user.firstName || "",

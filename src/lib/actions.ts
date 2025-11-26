@@ -1,6 +1,11 @@
 "use server";
 
 import { getUserFromJWT } from "@/lib/getUserFromJWT";
+import { SignJWT } from "jose";
+import { cookies } from "next/headers";
+
+const USERNAME_REGEX = /^[a-z0-9]+$/;
+const MIN_USERNAME_LENGTH = 5;
 
 export const switchLike = async (postId: string) => {
   const user = await getUserFromJWT();
@@ -546,5 +551,83 @@ export const updateProfile = async (
     return { success: true, error: false };
   } catch (err: any) {
     return { success: false, error: "Network error while updating profile" };
+  }
+};
+
+export const setUsername = async (rawUsername: string) => {
+  const user = await getUserFromJWT();
+
+  if (!user?.id) {
+    return { error: "Unauthorized: Missing user ID" };
+  }
+
+  const username = rawUsername.trim().toLowerCase();
+
+  if (username.length < MIN_USERNAME_LENGTH) {
+    return {
+      error: `Username must be at least ${MIN_USERNAME_LENGTH} characters long.`,
+    };
+  }
+
+  if (!USERNAME_REGEX.test(username)) {
+    return { error: "Username can only include lowercase letters and numbers." };
+  }
+
+  try {
+    const response = await fetch(
+      "https://www.themillionproject.org/_functions/setUsername",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          username,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return { error: result.error || "Failed to set username." };
+    }
+
+    const updatedPayload = {
+      ...user,
+      username: result.user?.username || username,
+      avatar: result.user?.avatar || user.avatar || "",
+      role: result.user?.role || user.role || "USER",
+      isSubscribed:
+        typeof result.user?.isSubscribed === "boolean"
+          ? result.user.isSubscribed
+          : user.isSubscribed ?? false,
+    };
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return { error: "Server misconfiguration: missing JWT secret." };
+    }
+
+    const token = await new SignJWT(updatedPayload)
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("1d")
+      .sign(new TextEncoder().encode(secret));
+
+    const cookieStore = cookies();
+    cookieStore.set("authToken", token, {
+      path: "/",
+      httpOnly: true,
+      maxAge: 86400,
+    });
+    cookieStore.set("userInfo", JSON.stringify(updatedPayload), {
+      path: "/",
+      httpOnly: false,
+      maxAge: 86400,
+    });
+
+    return { success: true, user: updatedPayload };
+  } catch (err) {
+    console.error("❌ Failed to set username:", err);
+    return { error: "Network error while setting username." };
   }
 };
